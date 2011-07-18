@@ -1,0 +1,125 @@
+
+*** Xor must be revealed!
+
+His many faces are  scattered through 15
+levels.  Acquiring all  the faces on any
+level will  enhance your  knowledge of
+Xor.
+
+There  are  no  random  events in  XOR's
+labyrinthine  palace, and  there  is  no
+premium  on hand-eye  coordination.  You
+have all the  time in the  world to work
+out the  precise  nature  of the hazards
+you  encounter.   Logical  thinking,
+strategy  and  tactical  problem solving
+are all part of the XOR experience.
+
+Beware  Xor controls  his  world  and
+doesn't give  up his personality easily.
+
+
+*** Objectives
+
+The  objective of the game is to collect
+all the happy blue masks in each maze,
+and to do so  within the  limit of 2000
+moves.  This might be  easy were it  not
+for  the puzzles which must be solved in
+order to reach them.
+
+
+*** Game Play
+
+You  have  two  players  but can control
+only one of them at a  time.   Move your
+player around the maze to collect masks.
+Once all masks are collected you must
+reach the exit.
+
+You may still complete a level if one of
+your players has been killed  by a fish,
+chicken, or bomb.
+
+You may switch between your two players
+whenever you care to, but this counts as
+one  of  the  2000 moves.  Some  puzzles
+require you to have both players near by
+to each  other and to use them in tandem
+to solve the particular problem.
+
+
+*** Information Panel
+
+The information  panel displays the icon
+of  the currently selected player.  Next
+to  the  player icon  you will  see  the
+number of masks remaing to  be collected
+and how many you have collected so far.
+Beneath that are the number of moves you
+have taken  so  far since  starting  the
+level, and  beneath  that  the x  and  y
+coordinates of that player's position in
+the map.
+
+The  remainder of  the information panel
+is devoted  to the map.  In order to use
+the map  you must  collect the  four map
+pieces scattered around each maze.
+
+In a standard 80x24  character terminal,
+the  map    display  is    only  a rough
+approximation   of   the  level  and   a
+seperate    display  is available at the
+touch of a key.  However, if running  in
+a large enough terminal  then  the  info
+panel will display the full detailed map
+and there is no use of the map toggle.
+
+
+*** Replays
+
+XorCurses has improved upon  the  replay
+feature of the original game.  XorCurses
+allows  you  to stop  the replay  at any
+point and continue playing from there.
+
+You may also set breakpoints during play
+or during a replay which  will stop  the
+replay automatically at that point.  You
+can then set a fast replay speed and not
+worry about missing  the point  at which
+you need to stop.
+
+For  intensive  scrutiny  of the replay,
+just press s to enter single step  mode.
+The other replay extreme is hyper speed,
+press  ).   Both  of  these   modes  are
+cancelled by pressing q.
+
+If you do not have enough time  in  your
+life to complete a level, then just save
+the replay  and load  it at a later date
+then  continue  playing from  where  you
+left off.
+
+
+*** Tips:
+
+In some situations it  pays to know that
+if  you  move  vertically,  then objects
+which move horizontally will move before
+those that move vertically. Likewise, if
+you move horizontally, vertically moving
+objects will move first.
+
+Set a breakpoint before any particularly
+challenging puzzle you face  so you  may
+have the replay stop at a  point  before
+it all went so horribly wrong.
+
+Press  'h'  for help followed by 'o' for
+objects if you  cannot remember how  any
+particular object you encounter behaves.
+
+Nothing in XorCurses is random!

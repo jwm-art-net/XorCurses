@@ -1,0 +1,43 @@
+
+PREREQUISITES:
+
+    ncurses development package from your linux distro
+    or ncurses built and installed from source.
+
+    (developed/built/tested in Debian Lenny with ncurses-5.6,
+     on both 32bit x86 and AMD64)
+
+BUILDING:
+
+Check the Makefile meets your requirements, and edit
+if necessary - there is no configure script here.
+
+tar -jxf XorCurses-0.1.2.tar.bz2
+cd XorCurses-0.1.2
+make
+sudo make install
+(or su -c make install)
+
+If the build process fails, please contact the author
+at james@jwm-art.net describing the problem. Please
+make sure you have the development version of ncurses
+installed from your distro as well as the ncurses binaries.
+
+NOTES:
+
+XorCurses now installs the maps and help files to
+/usr/local/share/XorCurses. It expects to find them there.
+Because the Makefile is quite primitive in how it handles
+the install directories, you will have to rebuild XorCurses
+and re-install it if you decide upon another location, the
+defaults should be fine in most cases however.
+
+Please view the README file for other help regarding XorCurses,
+or press h when the game starts.
+
+For tracking scores (ie minimum no. of moves taken to
+complete a level) a file is written to $HOME/.xorcurses
+If the environment variable $HOME does not exist, or its
+content is garbage, or the file cannot be created, score
+tracking will only work for as long as you have an instance
+of XorCurses running.

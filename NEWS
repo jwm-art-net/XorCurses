@@ -1,0 +1,101 @@
+-----------------------------------------
+Monday 2nd November 2009
+
+New Minor Release: XorCurses-0.1.2
+
+* Fixed nasty bugs in teleport code.
+
+* Brought improvement to xor_move struct
+  from XorGramana.
+
+* Minor UI changes.
+
+NOTES: I'm working on a 'game engine' for Xor
+and Xor-like games which handles the game
+processing stuff seperate from which ever
+user interface is used for user input/output.
+
+I've been doing this for a month or so and it's
+gradually settling down into a stable form.
+
+The hope is that one day I'll write an SDL
+version of XorCurses. The engine has, in addition
+to the objects in Xor, a few new objects with
+intention being to create a 'home-brewed' sequel.
+
+See also the TODO file.
+
+-----------------------------------------
+Friday 2nd October 2009
+
+New Minor Release: XorCurses-0.1.1
+
+* After the new menus, fixed level menu scores
+  to be updated upon level completion and score
+  bettered.
+
+* Hyper replay speed by pressing ')'.
+
+* Single stepping replay mode - press 's' to
+  enter it.
+
+* Updated keys help.
+
+* Use of page up and down keys implemented
+  for fast scroll through help.
+
+-----------------------------------------
+Friday 2nd October 2009
+
+New Release: XorCurses-0.1.0
+
+Substantial changes within XorCurses are
+brought to you by this release. Most of
+the changes and new features are a direct
+result of implementing a 'breakpoint'
+feature within the replay.
+
+
+* Menus: a generic menu system is in place
+  which is now used for the main level
+  menu, a help menu, and a replay menu. The
+  menu system supports all the old keyboard
+  shortcuts, and other features necessary to
+  get things right.
+
+* Replays: breakpoints can be set so the replay
+  will stop when it encounters them. This is
+  helpful when using the replay to start play
+  again from a point before it all went WRONG.
+  Breakpoints can be set/unset by pressing 'b'
+  during play, or from the replay menu during
+  play and replays.  The replay menu makes the
+  options clearer than the previous
+  "Replay? (y/n/c/p/s)".
+
+* Help: The main help file has been split into
+  two sections, how to play the game, and keys.
+  The object help still exists. Help can now
+  be called upon while playing the game too.
+
+* Pressing 'q' (quit) during game play no
+  longer increments the number of moves.
+
+* Source code: In order to implement the
+  breakpoint feature, a new control_flow function
+  was created. The old system of controlling
+  program path between play/load replay/replay/play
+  and back was messy and needed improving upon.
+  Other source files have been split apart and
+  etc etc.
+
+More details in the CHANGES file.
+
+Home page:
+http://www.jwm-art.net/dark.php?p=XorCurses
+
+Download:
+http://www.jwm-art.net/art/archive/XorCurses-0.1.0.tar.bz2
+
+
+

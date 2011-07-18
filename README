@@ -1,0 +1,96 @@
+XorCurses written by James W. Morris
+
+      http://www.jwm-art.net/dark.php?p=XorCurses
+
+Based on the game XOR by Astral Software (C) 1987
+
+Xor is a puzzle game set inside a series of mazes.
+
+XorCurses is a console/terminal ASCII character
+game written for Linux in C and uses the ncurses
+library.
+
+BEWARE: The first three levels are easy. The next
+two are a little more difficult, and the I'm yet to
+complete level 9 "The Challenge". The rest are
+probably insanely difficult. Xor does not give up his
+personality easily!
+
+BUILDING
+Please view the INSTALL file.
+
+TERMINALS
+
+There is an occassional problem with XorCurses running
+in some terminals when the terminal window is
+resized. XorCurses seems to lag behind a resize
+step. This behaviour has been spotted in other more
+well established ncurses apps too.
+
+** For best performance and completely functional **
+** resizing, it is recommended XorCurses be       **
+** played within an xterm window..                **
+
+If you are running XorCurses in a terminal under
+X then it is highly recommended that you increase
+its size. This will allow a full detail map to be
+shown as you play (instead of a rough approximation)
+and the game display area will increase if you're
+playing with the new school setting.
+
+
+STARTING
+
+In the level menu, use up/down arrow keys, or
+press number keys 1 to 9 to select from the 
+available levels.
+
+Pressing d or D will change the difficulty. The old
+school setting is more difficult in the game area is
+restricted to 8x8 and the scrolling threshold is set
+at 1 so you can't see so easily what is beyond your
+player. The old school setting emulates the game play
+of the original Xor game.
+
+PLAYING
+
+The object of each level is to collect all the
+blue masks and find the exit!
+
+Arrow keys move the currently selected player.
+Enter switches between your two players.
+
+Pressing q at any time during play will bring up
+the replay menu. You can choose to actually quit
+or watch the replay, or continue playing, amongst
+other options. During replay press keys 1-9 to 
+change speed, with 9 being very fast.
+
+The replay can be used to go back to a point
+before you made a wrong move.
+
+In new school mode, you may also alter the scrolling
+of the game area by pressing 1,2 or 3. These
+correspond to the number of blocks from the edge of
+the screen which the player approaches to trigger
+scrolling. The default is 2, Xor uses 1. 3
+keeps the player central if the game area is 8x8.
+
+
+FURTHER HELP
+
+You can find further help by pressing h while
+in the main level menu or during game play.
+
+
+---------------------------------------------------
+LICENSE
+
+All code is licensed under GNU GPL, the maps
+are probably by now we hope, public domain.
+
+CREDITS
+
+www.dancingwithferrets.org for providing the maps
+and other helpful information.
+

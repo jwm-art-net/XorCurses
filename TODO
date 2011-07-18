@@ -1,0 +1,65 @@
+README 1ST
+----------
+I'm working on a xor 'game engine' library which
+handles the game behaviour/processing side of things
+seperate from any user interface.
+
+The idea being that XorCurses2 will use this
+library. And, for example, an SDL version -
+XorSDL - will also use the same library
+and so avoid code duplication.
+
+So basically, development of XorCurses has stopped.
+Only bug fixes as they are discovered are likely to
+bring about new XorCurses releases.
+
+
+TODO list:
+
+* use autotools to generate ./configure script and make
+  the code more portable. (hint: i need some help with
+  this as I only have x86 and x86_64 to test with).
+
+* find someone willing to make a debian package ;-)
+
+* storage of moves happens in the user's HOME directory,
+  would be nice to have it readable/writable by the game
+  for all users - - - - maybe, who knows?
+
+* when saving a reply have option to prevent continues
+  from it.
+
+* encrypt moves storage to avoid cheats.
+
+* some kind of further puzzle - completion of each level
+  provides a letter - rework The Decoder (15) for slight
+  variation of original puzzle. (ie a variation on the
+  puzzle to become a Member of Xor in the original game).
+
+* restrict access to certain upper levels until certain
+  other levels complete (ie bbc xor version does not allow
+  access to maps 11,13,15 until 10,12,14 complete?? other
+  versions for other computers differed here. possibly.
+  (is this really necessary - i don't think so).
+
+* track progress of level completion (in ~/.xorcurses)
+
+* convert maps to binary format (such that the map pick-ups
+  to view map don't require blah blah blah blah x blah y).
+  also to prevent easy cheating and viewability of the clue
+  in level 15.
+
+* optimize/untangle code
+
+* allow load of new maps.
+
+* multi-coloured ASCII icons might be nice.
+ (note: from work done in the ***LONG ABANDONDED*** icon editor
+  a better way of doing the icons was discovered - rather than
+  having a background colour and foreground colour and then
+  char characters - use the chtype or'd with color_pairs and
+  underline/bold attributes - multi-coloured icons seemed to
+  confuse some icons (ie doll) and so i'm no longer concerned
+  about it).
+
+* experiment with larger icon sizes to at least see how it runs.

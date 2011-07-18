@@ -1,0 +1,53 @@
+       Horizontal Force Field. Allows
+       horizontal  movement.  Blocks
+       vertical movement.
+
+       Vertical Force Field. Blocks
+       horizontal movement.  Allows
+       movement vertically.
+
+
+       Mask. The faces of Xor, collect
+       these  to  complete each maze.
+
+       Fish fall at every chance. They
+       can be pushed horizontally, but
+       beware if they fall on you!
+
+       Chickens  run  left  given the
+       chance and can be pushed up or
+       down. Avoid being hit by them.
+
+       H-Bombs explode horizontally but
+       otherwise behave like fish.  Use
+       with care!
+
+       V-Bombs explode vertically, and
+       behave like chickens,  but  are
+       more hazardous.
+
+       Dolls are simple creatures. Push
+       them and they run off. They will
+       not move through force-fields.
+
+       Sad Mask Switch.  Collect  this
+       mask to toggle the visibility of
+       the walls on and off.
+
+       Map. There are four map pieces
+       in each maze. Collect them to
+       view the map.
+
+       Exit. The exit will be of no use
+       until you've  collected  all the
+       masks in a level.
+
+       Beam Me Up Scotty. Teleports the
+       player  to  another location  on
+       the map.
+
+
+
+
+
+

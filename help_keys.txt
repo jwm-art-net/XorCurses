@@ -1,0 +1,50 @@
+*** General keys
+
+These keys navigate menus and the player
+through the mazes:
+
+    Move up     -   up arrow or '
+    Move down   -   down arrow or /
+    Move left   -   left arrow or z
+    Move right  -   right arrow or x
+
+    Show help   -   h
+    Quit        -   q
+
+Within menus, key shortcuts are shown
+before each menu item.
+
+
+*** Game keys
+
+These keys do additional things within
+the game:
+
+    Swap Player -   return or p
+    Replay menu -   q
+    Set/Unset
+     breakpoint -   b
+    Scrolling   -   keys 1, 2, or 3 [1]
+    Map toggle  -   m [2]
+
+[1] Scrolling keys are not available
+with the oldschool difficulty setting.
+
+[2] The map toggle is only available
+when the map is displayed as a half
+scale approximation due to terminal
+size.
+
+
+*** Replay Keys
+
+    Speed -
+        slow    -   1
+        medium  -   5
+        fast    -   9
+        hyper   -   )
+
+    Single step -   s [1]
+
+[1] Thereafter any key to step.
+
