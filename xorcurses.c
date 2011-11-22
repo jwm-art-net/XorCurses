@@ -8,6 +8,8 @@
 #include "replay.h"
 #include "help.h"
 #include "version.h"
+#include "debug.h"
+
 
 int
 main(void)

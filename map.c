@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "options.h"
+#include "debug.h"
 
 struct xor_map *map = 0;
 
@@ -239,9 +240,13 @@ xor_map_load_error(FILE * fp, char *filename, char *msg)
         fclose(fp);
     endwin();
     if (filename)
+    {
         err_msg("Error in map!\n\tfile:%s\n\t%s\n", filename, msg);
+    }
     else
+    {
         err_msg("Error in map!\n\t%s\n", msg);
+    }
     xor_map_destroy(map);
     exit(1);
 }
