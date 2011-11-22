@@ -3,6 +3,7 @@
 #include "info.h"
 #include "options.h"
 #include "map.h"
+#include "debug.h"
 
 #include <curses.h>
 #include <stdlib.h>
@@ -24,7 +25,7 @@ screen_create()
     initscr();
     if (has_colors() == FALSE) {
         endwin();
-        fprintf(stderr, "Your terminal does not support color\n");
+        err_msg("Your terminal does not support color\n");
         return 0;
     }
     noecho();
@@ -72,9 +73,8 @@ screen_destroy()
         info_win = 0;
     }
     endwin();
-    #ifdef DEBUG
-    fprintf(stderr, "Ncurses says bye bye!\n");
-    #endif
+
+    debug("Ncurses says bye bye!\n");
 }
 
 su_t
@@ -123,12 +123,15 @@ screen_size()
     possible game area was large enough to accommodate a full detail
     map display (heightwise).
     if (options->oldschool_play)
-        screen_data->info_h = (maxy > MAX_INFO_H_OLDSCHOOL ? MAX_INFO_H_OLDSCHOOL : maxy);
+        screen_data->info_h = (maxy > MAX_INFO_H_OLDSCHOOL
+                                        ? MAX_INFO_H_OLDSCHOOL : maxy);
     else
         screen_data->info_h = (maxy > MAX_INFO_H ? MAX_INFO_H : maxy);
 */
     /* info window too small for unscaled map display ? */
-    if (screen_data->info_h - 6 <= MAP_H || screen_data->info_w - 2 < MAP_W) {
+    if (screen_data->info_h - 6 <= MAP_H
+     || screen_data->info_w - 2 < MAP_W)
+    {
         screen_data->scale_map = TRUE;  /* scale it down that is */
         screen_data->info_h = screen_data->garea_h * ICON_H;
         screen_data->i_tly = screen_data->ga_tly;
@@ -141,20 +144,22 @@ screen_size()
         screen_data->map_tlx = 1 + (screen_data->info_w - 2 - MAP_W) / 2;
         screen_data->map_tly = 6 + (screen_data->info_h - 6 - MAP_H) / 2;
     }
-    screen_data->i_tlx = screen_data->ga_tlx + screen_data->garea_w * ICON_W;
+
+    screen_data->i_tlx = screen_data->ga_tlx
+                        + screen_data->garea_w * ICON_W;
     if (game_win) {
         if (wresize(game_win,
                     screen_data->garea_h * ICON_H,
                     screen_data->garea_w * ICON_W)
             == ERR)
         {
-            fprintf(stderr, "problem resizing game win!");
+            err_msg("problem resizing game win!");
             exit(EXIT_FAILURE);
         }
         if (mvwin(game_win, screen_data->ga_tly, screen_data->ga_tlx)
             == ERR)
         {
-            fprintf(stderr, "problem moving game win!");
+            err_msg("problem moving game win!");
             exit(EXIT_FAILURE);
         }
     }
@@ -169,24 +174,22 @@ screen_size()
         keypad(game_win, TRUE);
     }
 
-#ifdef DEBUG
-    fprintf(stderr, " ga_tlx: %3d  ga_tly: %3d\n",
+    debug(" ga_tlx: %3d  ga_tly: %3d\n",
               screen_data->ga_tlx, screen_data->ga_tly);
-    fprintf(stderr, "garea_w: %3d garea_h: %3d\n",
+    debug("garea_w: %3d garea_h: %3d\n",
               screen_data->garea_w, screen_data->garea_h);
-#endif
 
     if (info_win) {
         if (wresize(info_win, screen_data->info_h, screen_data->info_w)
             == ERR)
         {
-            fprintf(stderr, "problem resizing info win!");
+            err_msg("problem resizing info win!");
             exit(EXIT_FAILURE);
         }
         if (mvwin(info_win, screen_data->i_tly, screen_data->i_tlx)
             == ERR)
         {
-            fprintf(stderr, "problem moving info win!");
+            err_msg("problem moving info win!");
             exit(EXIT_FAILURE);
         }
     }
@@ -199,14 +202,14 @@ screen_size()
         scrollok(info_win, FALSE);
         keypad(info_win, TRUE);
     }
-#ifdef DEBUG
-    fprintf(stderr, "  i_tlx: %3d   i_tly: %3d\n",
+
+    debug("  i_tlx: %3d   i_tly: %3d\n",
               screen_data->i_tlx, screen_data->i_tly);
-    fprintf(stderr, " info_w: %3d  info_h: %3d\n",
+    debug(" info_w: %3d  info_h: %3d\n",
               screen_data->info_w, screen_data->info_h);
-    fprintf(stderr, "stdmaxx: %3d stdmaxy: %3d\n",
+    debug("stdmaxx: %3d stdmaxy: %3d\n",
               maxx, maxy);
-#endif
+
     return 1;
 }
 

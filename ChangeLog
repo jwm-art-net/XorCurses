@@ -1,0 +1,11 @@
+2011-11-22 James Morris <james@jwm-art.net>
+
+	* +debug.h for err_msg debug #defines.
+
+	* replace all instances of 'fprint(stderr, ...' wrapped by
+	  '#if DEBUG' with 'debug(...'.
+
+	* replace all instances of 'fprint(stderr, ...' NOT wrapped
+	  by '#if DEBUG' with 'err_msg(...'.
+
+	* minor whitespace edits.

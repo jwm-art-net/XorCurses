@@ -1,10 +1,6 @@
 #include "map.h"
 #include "icons.h"
 
-#ifndef DEBUG
-#include <curses.h>
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 
@@ -29,13 +25,13 @@ xor_map_create()
     if (map)
         xor_map_destroy();
     if (!(map = malloc(sizeof(struct xor_map)))) {
-        fprintf(stderr, "Could not allocate map struct!\n");
+        err_msg("Could not allocate map struct!\n");
         exit(1);
     }
     for (xy_t row = 0; row < MAP_H; row++) {
         if (!(map->buf[row] = malloc(sizeof(map_t) * (MAP_W + 1)))) {
             free(map);
-            fprintf(stderr, "Could not allocate map buffer!\n");
+            err_msg("Could not allocate map buffer!\n");
             exit(1);
         }
     }
@@ -113,14 +109,16 @@ xor_map_load(su_t level)
     if (!map_fp)
         xor_map_load_error(map_fp, map->filename, "Can't find map file!");
     if (!(map->name = xor_map_read_name(map_fp)))
-        xor_map_load_error(map_fp, map->filename, "Could not read map name.");
+        xor_map_load_error(map_fp, map->filename,
+                                                "Could not read map name.");
     char tmpbuf[80];
 
     su_t tele_count = 0;
 
     for (xy_t row = 0; row < MAP_H; row++) {
         if (!fgets(tmpbuf, 80, map_fp))
-            xor_map_load_error(map_fp, map->filename, "Error in map layout");
+            xor_map_load_error(map_fp, map->filename,
+                                                    "Error in map layout");
         for (xy_t col = 0; col < MAP_W; col++) {
             su_t i = tmpbuf[col];
 
@@ -144,7 +142,8 @@ xor_map_load(su_t level)
                                        "Too many teleports in map!");
                 break;
             }
-            if (col == 0 || col == MAP_W - 1 || row == 0 || row == MAP_H - 1)
+            if (col == 0 || col == MAP_W - 1
+             || row == 0 || row == MAP_H - 1)
                 map->buf[row][col] = ICON_WALL;
             else
                 map->buf[row][col] = mapchar_to_icon(i);
@@ -176,7 +175,8 @@ xor_map_load(su_t level)
                                "Mismatched map-piece location data");
     }
     if (tele_count == 1)
-        xor_map_load_error(map_fp, map->filename, "Only one teleport in map!");
+        xor_map_load_error(map_fp, map->filename,
+                                            "Only one teleport in map!");
     if (tele_count) {           /* read teleport views */
         for (i = 0; i < 2; i++) {
             if (fscanf(map_fp, "%d %d", &tmpx, &tmpy) < 2)
@@ -239,9 +239,9 @@ xor_map_load_error(FILE * fp, char *filename, char *msg)
         fclose(fp);
     endwin();
     if (filename)
-        fprintf(stderr, "Error in map!\n\tfile:%s\n\t%s\n", filename, msg);
+        err_msg("Error in map!\n\tfile:%s\n\t%s\n", filename, msg);
     else
-        fprintf(stderr, "Error in map!\n\t%s\n", msg);
+        err_msg("Error in map!\n\t%s\n", msg);
     xor_map_destroy(map);
     exit(1);
 }

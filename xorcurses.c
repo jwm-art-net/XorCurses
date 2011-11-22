@@ -15,8 +15,7 @@ main(void)
     int ret = 0;
     /* options need to be created first, as screen_create requires them. */
     if (!options_create()) {
-        fprintf(stderr,
-                "Please either install XorCurses by running "
+        err_msg("Please either install XorCurses by running "
                 "'sudo make install' within the\n"
                 "XorCurses-" VERSION " source directory, or always "
                 "start XorCurses from within that\ndirectory.\n");
@@ -28,15 +27,16 @@ main(void)
         goto bail;
     }
     if (!screen_resize()) {
-        fprintf(stderr,
-                "Terminal too small!\nPlease resize and try again,\nif possible.\n");
+        err_msg("Terminal too small!\n"
+                "Please resize and try again,\n"
+                "if possible.\n");
         ret = 1;
         goto bail;
     }
 
     if (!options_create_map_names()) {
-        fprintf(stderr,
-                "A problem occurred establishing the map names, sorry :-(\n");
+        err_msg("A problem occurred establishing the "
+                "map names, sorry :-(\n");
         ret = 1;
         goto bail;
     }

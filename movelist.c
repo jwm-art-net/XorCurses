@@ -1,6 +1,7 @@
 #include "movelist.h"
 
 #include "map.h"
+#include "debug.h"
 
 #include <stdlib.h>
 
@@ -14,9 +15,9 @@ xmvlist_create()
     if (!(xmvlist = malloc(sizeof(struct xmv_list))))
         return 0;
     xmvlist->first = xmvlist->last = xmvlist->current = 0;
-#ifdef DEBUG
-    fprintf(stderr, "created xmvlist=%lx\n", (unsigned long) xmvlist);
-#endif
+
+    debug("created xmvlist=%lx\n", (unsigned long) xmvlist);
+
     return xmvlist;
 }
 
@@ -26,16 +27,15 @@ xmvlist_destroy()
     xmvlist->current = xmvlist->first;
     while (xmvlist->current) {
         struct xmv_link *tmp = xmvlist->current;
-
         xmvlist->current = tmp->next;
-#ifdef DEBUG
-        fprintf(stderr, "destroyed xmv_link %lx\n", (unsigned long) tmp);
-#endif
+
+        debug("destroyed xmv_link %lx\n", (unsigned long) tmp);
+
         free(tmp);
     }
-#ifdef DEBUG
-    fprintf(stderr, "destroyed xmvlist %lx\n", (unsigned long) xmvlist);
-#endif
+
+    debug("destroyed xmvlist %lx\n", (unsigned long) xmvlist);
+
     free(xmvlist);
     xmvlist = 0;
 }
@@ -112,40 +112,40 @@ xmvlist_append_xor_move(struct xor_move *xmv)
     if (!xmvlist->first) {
         xmvlist->first = xmvlist->last = xmvlist->current = lnk;
         lnk->prev = 0;
-#ifdef DEBUG
-        fprintf(stderr, "created xmv_link %lx for xor_move %lx\n",
+
+        debug("created xmv_link %lx for xor_move %lx\n",
                (unsigned long) lnk, (unsigned long) xmv);
-#endif
+
         return lnk;
     }
     xmvlist->last->next = lnk;
     lnk->prev = xmvlist->last;
     xmvlist->last = lnk;
-#ifdef DEBUG
-    fprintf(stderr, "created xmv_link %lx for xor_move %lx\n",
+
+    debug("created xmv_link %lx for xor_move %lx\n",
            (unsigned long) lnk, (unsigned long) xmv);
-#endif
+
     return lnk;
 }
 
 struct xor_move *
 xmvlist_unlink_xor_move(struct xmv_link *lnk)
 {
-#ifdef DEBUG
-    fprintf(stderr, "xor_move* xmvlist_unlink_xor_move(xmv_link* lnk=%lx)\n",
-           (unsigned long) lnk);
+    debug("xor_move* xmvlist_unlink_xor_move(xmv_link* lnk=%lx)\n",
+                                                (unsigned long) lnk);
+#ifdef DEBUG /* not just debug message */
     if (lnk == xmvlist->current)
-        fprintf(stderr, "\tunlinking xmvlist->current\n");
+        debug("\tunlinking xmvlist->current\n");
 #endif
     struct xor_move *xmv = lnk->xmv;
 
     if (lnk == xmvlist->first) {
         if (xmvlist->first == xmvlist->last) {
             xmvlist->first = xmvlist->last = xmvlist->current = 0;
-#ifdef DEBUG
-            fprintf(stderr, "destroyed xmv_link (first/last) %lx for xor_move %lx\n",
+
+            debug("destroyed xmv_link (first/last) %lx for xor_move %lx\n",
                    (unsigned long) lnk, (unsigned long) xmv);
-#endif
+
             free(lnk);
             return xmv;
         }
@@ -153,10 +153,10 @@ xmvlist_unlink_xor_move(struct xmv_link *lnk)
             xmvlist->current = lnk->next;
         xmvlist->first = lnk->next;
         xmvlist->first->prev = 0;
-#ifdef DEBUG
-        fprintf(stderr, "destroyed xmv_link (first) %lx for xor_move %lx\n",
+
+        debug("destroyed xmv_link (first) %lx for xor_move %lx\n",
                (unsigned long) lnk, (unsigned long) xmv);
-#endif
+
         free(lnk);
         return xmv;
     }
@@ -165,10 +165,10 @@ xmvlist_unlink_xor_move(struct xmv_link *lnk)
             xmvlist->current = xmvlist->first;
         xmvlist->last = lnk->prev;
         xmvlist->last->next = 0;
-#ifdef DEBUG
-        fprintf(stderr, "destroyed xmv_link (last) %lx for xor_move %lx\n",
+
+        debug("destroyed xmv_link (last) %lx for xor_move %lx\n",
                (unsigned long) lnk, (unsigned long) xmv);
-#endif
+
         free(lnk);
         return xmv;
     }
@@ -179,10 +179,10 @@ xmvlist_unlink_xor_move(struct xmv_link *lnk)
     tmp->prev = lnk->prev;
     tmp = lnk->prev;
     tmp->next = lnk->next;
-#ifdef DEBUG
-    fprintf(stderr, "destroyed xmv_link %lx for xor_move %lx\n",
+
+    debug("destroyed xmv_link %lx for xor_move %lx\n",
            (unsigned long) lnk, (unsigned long) xmv);
-#endif
+
     free(lnk);
     return xmv;
 }

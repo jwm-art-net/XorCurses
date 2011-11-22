@@ -3,6 +3,9 @@
 #include "replay.h"
 
 
+#include "debug.h"
+
+
 void control_flow(int level)
 {
     int flow = (level & FLOW_LOAD_REPLAY) ? FLOW_LOAD_REPLAY : FLOW_START;
@@ -11,6 +14,7 @@ void control_flow(int level)
         if (flow == FLOW_LOAD_REPLAY) {
             if ((level = replay_load()) == 999)
                 return;
+            debug("We're here!\n");
             flow = replay_xor(level | FLOW_START);
         }
         else {

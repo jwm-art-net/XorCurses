@@ -3,6 +3,7 @@
 #include "game_display.h"
 #include "icons.h"
 #include "screen.h"
+#include "debug.h"
 
 #include <string.h>
 
@@ -86,14 +87,16 @@ info_win_dump_map(su_t mappc)
                 wattrset(info_win, COLOR_PAIR(COL_I_MAP_WALL));
                 mvwaddch(info_win,
                          screen_data->map_tly + yy / d,
-                         screen_data->map_tlx + xx / d, icon_to_mapchar(icon));
+                         screen_data->map_tlx + xx / d,
+                                        icon_to_mapchar(icon));
                 break;
             case ICON_MASK:
             case ICON_EXIT:
                 wattrset(info_win, COLOR_PAIR(icon));
                 mvwaddch(info_win,
                          screen_data->map_tly + yy / d,
-                         screen_data->map_tlx + xx / d, icon_to_mapchar(icon));
+                         screen_data->map_tlx + xx / d,
+                                        icon_to_mapchar(icon));
                 break;
             default:
                 break;
@@ -128,7 +131,8 @@ info_win_display()
               " %d. %s ", map->level, map->name);
     mvwprintw(info_win, 2, 8, "masks: %d of %d ", player.masks_collected,
               map->mask_count);
-    mvwprintw(info_win, 3, 8, "moves: %d ", MAX_MOVES - player.moves_remaining);
+    mvwprintw(info_win, 3, 8, "moves: %d ",
+                                    MAX_MOVES - player.moves_remaining);
     mvwprintw(info_win, 4, 8, "x:%d  y:%d  ",
               map->player[player.player].x, map->player[player.player].y);
     if (screen_data->scale_map == TRUE)
@@ -137,10 +141,6 @@ info_win_display()
                   screen_data->map_tlx + 1, "m - map toggle");
     wrefresh(info_win);
 
-#ifdef DEBUG
-    fprintf(stderr, "view_x0: %3d view_y0: %3d\n",
-              map->view[0].x, map->view[0].y);
-    fprintf(stderr, "view_x1: %3d view_y1: %3d\n",
-              map->view[1].x, map->view[1].y);
-#endif
+    debug("view_x0: %3d view_y0: %3d\n", map->view[0].x, map->view[0].y);
+    debug("view_x1: %3d view_y1: %3d\n", map->view[1].x, map->view[1].y);
 }

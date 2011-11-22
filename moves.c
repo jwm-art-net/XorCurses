@@ -4,6 +4,7 @@
 #include "options.h"
 #include <stdlib.h>
 #include <time.h>
+#include "debug.h"
 
 ct_t
 move_object_init(struct xor_move * move)
@@ -70,9 +71,8 @@ move_object_init(struct xor_move * move)
 void
 move_gravity_process(struct xor_move *xmv)
 {
-#ifdef DEBUG
-    fprintf(stderr, "\nmove_gravity_process(xor_move* xmv=%lx)\n", (unsigned long) xmv);
-#endif
+    debug("\nmove_gravity_process(xor_move* xmv=%lx)\n",(unsigned long)xmv);
+
     xmvlist_create();
     xmvlist_append_xor_move(xmv);
     xmvlist_first();
@@ -88,20 +88,19 @@ move_gravity_process(struct xor_move *xmv)
     while (xmvlist->current) {
         struct xor_move *xmv = xmvlist->current->xmv;
 
-#ifdef DEBUG
-        fprintf(stderr, "xmvlist->current=%lx->xmv=%lx\n",
+        debug("xmvlist->current=%lx->xmv=%lx\n",
                (unsigned long) xmvlist->current, (unsigned long) xmv);
-#endif
+
         struct xor_move *cmv = xmv;
 
         while (cmv) {
             nanosleep(&rpause, &repause);
-#ifdef DEBUG
-            fprintf(stderr,
-                "mv_grv_proc:\n\t*(%lx)cmv->from_x:%d,from_y:%d,from_obj:%s\n",
-                (unsigned long) cmv, cmv->from_x, cmv->from_y,
-                icons[cmv->from_obj].name);
-#endif
+
+            debug("mv_grv_proc:\n"
+                    "\t*(%lx)cmv->from_x:%d,from_y:%d,from_obj:%s\n",
+                    (unsigned long) cmv, cmv->from_x, cmv->from_y,
+                    icons[cmv->from_obj].name);
+
             struct xor_move *cmv_next = cmv->chain;
 
             ct_t cont = move_object_init(cmv);
@@ -113,18 +112,19 @@ move_gravity_process(struct xor_move *xmv)
                 }
             }
             if (cont == CT_EXPLODE) {
-#ifdef DEBUG
-                fprintf(stderr, "\nBANG!!!\n");
-#endif
+
+                debug("\nBANG!!!\n");
+
                 explode_process_detonator(xmvlist->current);
                 cmv = cmv_next;
-#ifdef DEBUG
-                fprintf(stderr,
-                        "\nreturn to move_gravity_process(xor_move* xmv=%lx)\n",
+
+                debug("\nreturn to ... (xor_move* xmv=%lx)\n",
                         (unsigned long) xmv);
-                fprintf(stderr, "\tcmv=cmv_next=%lx\n", (unsigned long) cmv);
+                debug("\tcmv=cmv_next=%lx\n", (unsigned long) cmv);
+
+#ifdef DEBUG /* not just debug message */
                 if (cmv)
-                    fprintf(stderr, "\t*(%lx)cmv->from_x:%d,from_y:%d,from_obj:%s\n",
+                    debug("\t*(%lx)cmv->from_x:%d,from_y:%d,from_obj:%s\n",
                            (unsigned long) cmv, cmv->from_x, cmv->from_y,
                            icons[cmv->from_obj].name);
 #endif
@@ -147,11 +147,11 @@ move_gravity_process(struct xor_move *xmv)
                 }
                 else {
                     if (cmv->dir == MV_DOWN)
-                        cmv =
-                            create_gravity_chain_xydir(tmpx + 1, tmpy, MV_LEFT);
+                        cmv = create_gravity_chain_xydir(tmpx + 1, tmpy,
+                                                                MV_LEFT);
                     else
-                        cmv =
-                            create_gravity_chain_xydir(tmpx, tmpy - 1, MV_DOWN);
+                        cmv = create_gravity_chain_xydir(tmpx, tmpy - 1,
+                                                                MV_DOWN);
                     if (cmv) {
                         xmvlist_append_xor_move(cmv);
                         if (!options->replay_hyper)
@@ -159,24 +159,22 @@ move_gravity_process(struct xor_move *xmv)
                     }
                     xmvlist_cycle_next();
                     cmv = xmv = xmvlist->current->xmv;
-#ifdef DEBUG
-                    fprintf(stderr, "xmvlist->current=%lx->xmv=%lx\n",
+
+                    debug("xmvlist->current=%lx->xmv=%lx\n",
                            (unsigned long) xmvlist->current,
                            (unsigned long) xmv);
-#endif
                 }
             }
             else if ((cmv = move_unchain_blocked_bomb(xmvlist->current)))
                 xmv = cmv;
             else {              /* chain blocked - remove it */
-#ifdef DEBUG
-                fprintf(stderr, "mv_grav_proc() chain blocked removing...\n");
-#endif
+                debug("mv_grav_proc() chain blocked removing...\n");
+
                 struct xmv_link *tmplnk = xmvlist->current;
 
-#ifdef DEBUG
+#ifdef DEBUG /* not just debug message */
                 if (tmplnk->xmv != xmv)
-                    fprintf(stderr, "\n***** current->xmv != xmv *******\n");
+                    debug("\n***** current->xmv != xmv *******\n");
 #endif
                 destroy_gravity_chain(xmv);
                 if (xmvlist_cycle_next() == tmplnk)
@@ -188,10 +186,8 @@ move_gravity_process(struct xor_move *xmv)
         }
     }
     xmvlist_destroy();
-#ifdef DEBUG
-    fprintf(stderr, "\nEXITING move_gravity_process(xor_move* xmv=%lx)\n",
-           (unsigned long) xmv);
-#endif
+
+    debug("\nEXITING ... (xor_move* xmv=%lx)\n", (unsigned long) xmv);
 }
 
 struct xor_move *
@@ -199,11 +195,9 @@ move_unchain_blocked_bomb(struct xmv_link *lnk)
 {
     struct xor_move *xmv = lnk->xmv;
 
-#ifdef DEBUG
-    fprintf(stderr, "move_unchain_blocked_bomb(xmv_link* lnk=%lx)\n",
+    debug("move_unchain_blocked_bomb(xmv_link* lnk=%lx)\n",
            (unsigned long) lnk);
-    fprintf(stderr, "moves count:%d\n", xmv->moves_count);
-#endif
+    debug("moves count:%d\n", xmv->moves_count);
 
     if (xmv->moves_count == 0)
         return 0;

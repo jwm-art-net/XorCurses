@@ -1,6 +1,7 @@
 #include "options.h"
 
 #include "map.h"
+#include "debug.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +19,7 @@ su_t
 options_create()
 {
     if (!(options = malloc(sizeof(struct xor_options)))) {
-        fprintf(stderr, "Memory allocation error!\n");
+        err_msg("Memory allocation error!\n");
         exit(1);
     }
     options->oldschool_play = 0;

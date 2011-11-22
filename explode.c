@@ -5,6 +5,7 @@
 #include "options.h"
 #include "info.h"
 #include "screen.h"
+#include "debug.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -12,10 +13,8 @@
 void
 explode_process_detonator(struct xmv_link *detlnk)
 {
-#ifdef DEBUG
-    fprintf(stderr, "explode_process_detonator(detlnk=%lx)", (unsigned long) detlnk);
-    fprintf(stderr, "detlnk->xmv=%lx\n", (unsigned long) detlnk->xmv);
-#endif
+    debug("explode_process_detonator(detlnk=%lx)", (unsigned long) detlnk);
+    debug("detlnk->xmv=%lx\n", (unsigned long) detlnk->xmv);
 
     struct xor_move *detmv = detlnk->xmv;
 
@@ -55,14 +54,18 @@ explode_process_detonator(struct xmv_link *detlnk)
     su_t i;
 
     for (i = 0; i < 4; i++)
+    {
         if (exp_x[i] == 0 || exp_x[i] > MAP_W - 2
-            || exp_y[i] == 0 || exp_y[i] > MAP_H - 2)
+         || exp_y[i] == 0 || exp_y[i] > MAP_H - 2)
+        {
             exp[i] = FALSE;
-#ifdef DEBUG
+        }
         else
-            fprintf(stderr, "valid explosion point [%d] x:%d y%d\n", i, exp_x[i],
-                   exp_y[i]);
-#endif
+        {
+            debug("valid explosion point [%d] x:%d y%d\n",
+                                        i, exp_x[i], exp_y[i]);
+        }
+    }
 
     struct timespec rpause;
 
@@ -128,12 +131,12 @@ explode_process_detonator(struct xmv_link *detlnk)
     if (dead2)
         player_death(dead2);
     if (detmv->chain) {
-#ifdef DEBUG
-        fprintf(stderr, "pruning chain: detlink->xmv=(was)%lx (now %lx->right)= %lx\n",
+        debug("pruning chain: detlink->xmv=(was)%lx "
+              "(now %lx->right)= %lx\n",
                (unsigned long) detlnk->xmv, (unsigned long) detmv,
                (unsigned long) detmv->chain);
-        fprintf(stderr, "freeing detmv");
-#endif
+        debug("freeing detmv");
+
         detlnk->xmv = detmv->chain;
         free(detmv);
         detmv = 0;

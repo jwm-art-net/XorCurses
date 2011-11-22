@@ -13,9 +13,6 @@
 #include <time.h>
 #include <curses.h>
 
-#ifdef DEBUG
-#include <stdio.h>
-#endif
 
 void
 info_win_repaint()
@@ -79,12 +76,14 @@ play_xor(lvl_t level)
                   & MV_REPLAY_BREAK)
                     scr_wmsg_pause(game_win, "Breakpoint set", 0, 0, TRUE);
                 else
-                    scr_wmsg_pause(game_win, "Breakpoint unset", 0, 0, TRUE);
+                    scr_wmsg_pause(game_win, "Breakpoint unset", 0, 0,TRUE);
                 game_win_display();
             }
             break;
         case '1': case '2': case '3':
-            options->scroll_thresh = (options->oldschool_play ? 1 : key - '0');
+            options->scroll_thresh = (options->oldschool_play)
+                                            ? 1
+                                            : key - '0';
             break;
         case 'm':   case 'M':
             game_win_map_display();

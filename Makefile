@@ -10,7 +10,7 @@ MAPDIR=$(SHAREDIR)maps
 #------------------standard options------------------
 # probably fine for most people:
 
-CFLAGS:= -O2 -std=gnu99 -Wall -pedantic -DDATADIR=\"$(SHAREDIR)\"
+CFLAGS:= -O2 -std=gnu99 -Wall -Wextra -pedantic -DDATADIR=\"$(SHAREDIR)\"
 
 # -DDATA_DIR is an easy way of giving the src files
 # the default install location. options code relies
@@ -22,9 +22,7 @@ CFLAGS:= -O2 -std=gnu99 -Wall -pedantic -DDATADIR=\"$(SHAREDIR)\"
 # movements and bomb detonations. Redirect stderr
 # if you use it.
 
-#CFLAGS:= -std=gnu99 -Wall -pedantic -ggdb -DDATADIR=\"$(SHAREDIR)\"
-#CFLAGS:= -DTESTMAP -std=gnu99 -Wall -pedantic -ggdb -DDATADIR=\"$(SHAREDIR)\"
-#CFLAGS:= -DDEBUG -std=gnu99 -Wall -pedantic -ggdb -DDATADIR=\"$(SHAREDIR)\"
+#CFLAGS:=$(CFLAGS) -DDEBUG -ggdb
 
 # Add -DTESTMAP to enable access within the level
 # menu of the test map (maps/0.txt). NOTE: DO NOT

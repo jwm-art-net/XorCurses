@@ -7,6 +7,7 @@
 #include "info.h"
 #include "teleport.h"
 #include "screen.h"
+#include "debug.h"
 
 #include <time.h>
 #include <stdlib.h>
@@ -124,10 +125,9 @@ player_process_move(struct xor_move *pmv)
 enum PLAY_STATE
 player_process_old_pos(struct xor_move *pmv)
 {
-#ifdef DEBUG
-    fprintf(stderr, "\nplayer_process_old_pos(xor_move* pmv=%lx)\n",
+    debug("\nplayer_process_old_pos(xor_move* pmv=%lx)\n",
            (unsigned long) pmv);
-#endif
+
     su_t check1 = (MV_HORIZ & pmv->dir) ? MV_UP : MV_RIGHT;
 
     su_t check2 = (check1 == MV_UP) ? MV_RIGHT : MV_UP;
@@ -154,10 +154,9 @@ player_process_old_pos(struct xor_move *pmv)
 enum PLAY_STATE
 pushed_process_new_pos(struct xor_move *omv)
 {
-#ifdef DEBUG
-    fprintf(stderr, "\npushed_process_new_pos(xor_move* omv=%lx)\n",
+    debug("\npushed_process_new_pos(xor_move* omv=%lx)\n",
            (unsigned long) omv);
-#endif
+
     if (omv->from_obj != ICON_DOLL)
         omv->dir = actions[omv->from_obj].mvi_dir;
     omv->from_x = omv->to_x;
@@ -218,9 +217,9 @@ player_death(su_t icon)
     scr_wmsg_pause(game_win, msg[p], 0, 0, TRUE);
     if (player.replay)
         nodelay(game_win, TRUE);
-#ifdef DEBUG
-    fprintf(stderr, "\n\n%s\n\n", msg[p]);
-#endif
+
+    debug("\n\n%s\n\n", msg[p]);
+
     game_win_display();
 }
 

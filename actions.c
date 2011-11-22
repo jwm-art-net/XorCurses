@@ -1,5 +1,6 @@
 #include "actions.h"
 #include "map.h"
+#include "debug.h"
 
 #include <stdlib.h>
 
@@ -9,12 +10,12 @@ struct xor_action actions[ICON_XXX] = {
     {MVI_NONE, CT_FILTER, MV_NONE, MV_HORIZ},   /* h-field   */
     {MVI_NONE, CT_FILTER, MV_NONE, MV_VERT},    /* v-field   */
     {MVI_NONE, CT_PICKUP, MV_NONE, MV_NONE},    /* mask      */
-    {MVI_GRAVITY, CT_PUSH | CT_PDEATH, MV_DOWN, MV_HORIZ},      /* fish      */
-    {MVI_GRAVITY, CT_PUSH | CT_PDEATH, MV_LEFT, MV_VERT},       /* chicken   */
+    {MVI_GRAVITY, CT_PUSH | CT_PDEATH, MV_DOWN, MV_HORIZ},   /* fish    */
+    {MVI_GRAVITY, CT_PUSH | CT_PDEATH, MV_LEFT, MV_VERT},    /* chicken */
     {MVI_GRAVITY, CT_PUSH | CT_EXPLODE | CT_PDEATH,
-     MV_DOWN, MV_HORIZ},        /* h-bomb    */
+                            MV_DOWN, MV_HORIZ}, /* h-bomb    */
     {MVI_GRAVITY, CT_PUSH | CT_EXPLODE | CT_PDEATH,
-     MV_LEFT, MV_VERT},         /* v-bomb    */
+                             MV_LEFT, MV_VERT}, /* v-bomb    */
     {MVI_NONE, CT_HARDPUSH, MV_ANY, MV_ANY},    /* doll      */
     {MVI_NONE, CT_PICKUP, MV_NONE, MV_NONE},    /* sad mask  */
     {MVI_NONE, CT_PICKUP, MV_NONE, MV_NONE},    /* map       */
@@ -38,11 +39,10 @@ create_xor_move(xy_t x, xy_t y, su_t move)
     xmv->to_x = xmv->to_y = 0;
     xmv->chain = 0;
     xmv->moves_count = 0;
-#ifdef DEBUG
-    fprintf(stderr, "create_xor_move(x=%d,y=%d,move=%d) return:%lx\n",
-           x, y, move, (unsigned long) xmv);
-    fprintf(stderr, "xmv->from_obj=%s\n", icons[xmv->from_obj].name);
-#endif
+
+    debug("x:%d y:%d move:%d return:%lx\n", x, y, move, (unsigned long)xmv);
+    debug("xmv->from_obj=%s\n", icons[xmv->from_obj].name);
+
     return xmv;
 }
 
@@ -65,29 +65,23 @@ create_gravity_chain_xydir(xy_t x, xy_t y, su_t dir)
 
     struct xor_move *tmp = 0;
 
-#ifdef DEBUG
-    fprintf(stderr, "create_gravity_chain_xydir(x=%d,y=%d,dir=%d)\n", x, y, dir);
-#endif
+    debug("x:%d y:%d dir:%d\n", x, y, dir);
+
     do {
         int icon = map->buf[y][x];
 
         if (actions[icon].mvini != MVI_GRAVITY) {
-#ifdef DEBUG
-            fprintf(stderr, "..return <xor_move* head=%lx>\n", (unsigned long) head);
-#endif
+
+            debug("..return <xor_move* head=%lx>\n", (unsigned long) head);
             return head;
         }
         if (actions[icon].mvi_dir != dir) {
-#ifdef DEBUG
-            fprintf(stderr, "..return <xor_move* head=%lx>\n", (unsigned long) head);
-#endif
+            debug("..return <xor_move* head=%lx>\n", (unsigned long) head);
             return head;
         }
         if (!(xmv = malloc(sizeof(struct xor_move)))) {
-#ifdef DEBUG
-            fprintf(stderr, "..!malloc! return <xor_move* head=%lx>\n",
+            debug("..!malloc! return <xor_move* head=%lx>\n",
                    (unsigned long) head);
-#endif
             return head;
         }
         if (!head)
@@ -101,9 +95,9 @@ create_gravity_chain_xydir(xy_t x, xy_t y, su_t dir)
         xmv->to_x = xmv->to_y = 0;
         xmv->chain = 0;
         xmv->moves_count = 0;
-#ifdef DEBUG
-        fprintf(stderr, "\tfrom_obj=%s from_x=%d from_y=%d\n", icons[icon].name, x, y);
-#endif
+
+        debug("\tfrom_obj=%s from_x=%d from_y=%d\n", icons[icon].name,x,y);
+
         tmp = xmv;
         if (dir == MV_DOWN)
             y--;
@@ -131,9 +125,9 @@ create_gravity_chain(struct xor_move *xmv)
     x = xmv->from_x;
     y = xmv->from_y;
     dir = xmv->dir;
-#ifdef DEBUG
-    fprintf(stderr, "create_gravity_chain(xor_move* xmv=%lx)\n", (unsigned long) xmv);
-#endif
+
+    debug("create_gravity_chain(xor_move* xmv=%lx)\n", (unsigned long) xmv);
+
     do {
         icon = map->buf[y][x];
         if (actions[icon].mvini != MVI_GRAVITY) {

@@ -6,6 +6,7 @@
 #include "info.h"
 #include "play_xor.h"
 #include "options.h"
+#include "debug.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -118,9 +119,9 @@ int replay_menu(int flow)
     int select = 0;
     do {
         replay_menu_config_for(flow);
-        #ifdef DEBUG
-        mvwprintw(game_win,0,0,"FLOW:%4x",flow);
-        #endif
+
+        debug("FLOW:%4x", flow);
+
         if (flow & FLOW_INTERUPT_BREAK)
             select = REPLAY_MENU_CONTINUE;
         select = scr_menu(game_win,
@@ -319,7 +320,7 @@ bail:
 }
 
 
-#ifdef DEBUG
+#ifdef DEBUG /* replay_dump_break_quit_moves() */
 void replay_dump_break_quit_moves()
 {
     int mv_st = - 10;
@@ -331,9 +332,11 @@ void replay_dump_break_quit_moves()
     int n = 0;
     for (int i = -4; i < 6; ++i, ++n) {
         if (replay.moves[player.moves_remaining + i] & MV_PLAYER_QUIT)
-            mvwprintw(game_win, n, 10, "MV_PLAYER_QUIT = moves_remain + %d ", i);
+            mvwprintw(game_win, n, 10,
+                                "MV_PLAYER_QUIT = moves_remain + %d ", i);
         if (replay.moves[player.moves_remaining + i] & MV_REPLAY_BREAK)
-            mvwprintw(game_win, n, 10, "MV_REPLAY_BREAK = moves_remain + %d ", i);
+            mvwprintw(game_win, n, 10,
+                                "MV_REPLAY_BREAK = moves_remain + %d ", i);
     }
 }
 #endif
