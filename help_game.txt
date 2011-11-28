@@ -123,3 +123,4 @@ objects if you  cannot remember how  any
 particular object you encounter behaves.
 
 Nothing in XorCurses is random!
+

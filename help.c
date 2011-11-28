@@ -138,6 +138,7 @@ help_menu()
 char** read_help_text(int item)
 {
     char* filename = 0;
+
     switch(item) {
     case HELP_MENU_GAME:
         filename = "help_game.txt";
@@ -151,25 +152,37 @@ char** read_help_text(int item)
     default:
         return 0;
     }
+
     char *hf = options_file_path(filename, options->data_dir);
+
     if (!hf)
         return 0;
+
     FILE *fp = fopen(hf, "r");
     free(hf);
+
     if (!fp)
         return 0;
+
     int row = 0;
     char buf[HELP_WIDTH];
+
     while (fgets(buf, HELP_WIDTH, fp)) ++row;
+
     char **help = malloc((row + 1) * sizeof(char*));
+
     if (!help)
         return 0;
+
     fseek(fp, 0, SEEK_SET);
-    for (int i = 0; i < row; ++i) {
+
+    for (int i = 0; i < row; ++i)
+    {
         fgets(buf, HELP_WIDTH, fp);
         help[i] = malloc((strlen(buf) + 1) * sizeof(char));
         strcpy(help[i], buf);
     }
+
     help[row] = 0;
     fclose(fp);
     return help;
@@ -186,6 +199,7 @@ int help_show(int pitem)
 {
     int item = pitem & 0x00ff;
     char** help;
+
     switch(item) {
     case HELP_MENU_GAME:
     case HELP_MENU_KEYS:
@@ -196,11 +210,15 @@ int help_show(int pitem)
     default:
         return HELP_RET_MENU;
     }
+
     if (!help)
         return HELP_RET_MENU;
+
     int row = 0;
+
     while(help[++row]);
-    xy_t maxrows = row - 1;
+
+    xy_t maxrows = row;
     xy_t h = screen_data->garea_h * ICON_H;
     xy_t indx = screen_data->garea_w * ICON_W - 4;
     row = (pitem & HELP_MENU_CANCELLED) ? return_to_row : 0;

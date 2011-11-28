@@ -27,8 +27,9 @@ the game:
     Scrolling   -   keys 1, 2, or 3 [1]
     Map toggle  -   m [2]
 
-[1] Scrolling keys are not available
-with the oldschool difficulty setting.
+[1] Scrolling and breakpoints are not
+available with the oldschool difficulty
+setting.
 
 [2] The map toggle is only available
 when the map is displayed as a half

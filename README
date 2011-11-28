@@ -11,10 +11,10 @@ game written for Linux in C and uses the ncurses
 library.
 
 BEWARE: The first three levels are easy. The next
-two are a little more difficult, and the I'm yet to
-complete level 9 "The Challenge". The rest are
-probably insanely difficult. Xor does not give up his
-personality easily!
+two are a little more difficult, and the remainder get
+progressively more difficult (or so I'm informed).
+
+Xor does not give up his personality easily!
 
 BUILDING
 Please view the INSTALL file.
@@ -46,11 +46,15 @@ press number keys 1 to 9 to select from the
 available levels.
 
 Pressing d or D will change the difficulty. The old
-school setting is more difficult in the game area is
+school setting is more difficult: he game area is
 restricted to 8x8 and the scrolling threshold is set
 at 1 so you can't see so easily what is beyond your
-player. The old school setting emulates the game play
-of the original Xor game.
+player. Additionally, in oldschool mode, replays cannot
+be interupted for play to resume from a point before the
+replay otherwise would end. Breakpoints are also ignored.
+The old school emulates the game play of the original
+Xor game.
+
 
 PLAYING
 
@@ -64,13 +68,14 @@ Pressing q at any time during play will bring up
 the replay menu. You can choose to actually quit
 or watch the replay, or continue playing, amongst
 other options. During replay press keys 1-9 to 
-change speed, with 9 being very fast.
+change speed, with 9 being very fast. Press s for
+step mode, or, ( for hyper speed.
 
 The replay can be used to go back to a point
 before you made a wrong move.
 
 In new school mode, you may also alter the scrolling
-of the game area by pressing 1,2 or 3. These
+of the game area by pressing 1, 2 or 3. These
 correspond to the number of blocks from the edge of
 the screen which the player approaches to trigger
 scrolling. The default is 2, Xor uses 1. 3

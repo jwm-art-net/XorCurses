@@ -18,11 +18,11 @@ TODO list:
 
 * debian and arch AUR packages please
 
-* storage of moves happens in the user's HOME directory,
-  would be nice to have it readable/writable by the game
-  for all users.
+* storage of moves taken to complete a level happens in
+  the user's HOME directory - it would be nice to have
+  it readable/writable by the game for all users.
 
-* when playing a replay which is of a completed maze,
+* when playing a replay which is of a complete level,
   disallow continue play.
 
 * encrypt moves storage to avoid cheats. possibly.
