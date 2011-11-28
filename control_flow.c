@@ -27,14 +27,16 @@ void control_flow(int level)
         if (flow == FLOW_DO_QUIT)
             return;
     }
-
 }
+
 
 #if DEBUG
 void control_flow_print(int flow)
 {
     EBIT_MSG(flow, FLOW_LOAD_REPLAY)
     EBIT_MSG(flow, FLOW_START)
+    EBIT_MSG(flow, FLOW_CONTINUE)
+    EBIT_MSG(flow, FLOW_CAN_PLAY)
     EBIT_MSG(flow, FLOW_DO_REPLAY)
     EBIT_MSG(flow, FLOW_DO_GAME)
     EBIT_MSG(flow, FLOW_INTERUPT_BREAK)
