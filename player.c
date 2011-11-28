@@ -237,3 +237,21 @@ player_process_map_pc(struct xor_move *pmv)
         }
     }
 }
+
+#if DEBUG
+
+void player_state_print(int state)
+{
+    int r = state & PLAY_RECORD;
+    state ^= PLAY_RECORD;
+    ENUM_MSG(state, PLAY_CONTINUE);
+    ENUM_MSG(state, PLAY_PROCESS_MOVE);
+    ENUM_MSG(state, PLAY_SWAP);
+    ENUM_MSG(state, PLAY_QUIT);
+    ENUM_MSG(state, PLAY_ZERO_MOVES);
+    ENUM_MSG(state, PLAY_GOTCHA);
+    ENUM_MSG(state, PLAY_COMPLETE);
+    ENUM_MSG(r, PLAY_RECORD);
+}
+
+#endif

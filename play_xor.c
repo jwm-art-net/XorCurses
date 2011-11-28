@@ -29,11 +29,15 @@ int
 play_xor(lvl_t level)
 {
     player.replay = 0;
-    if (level & FLOW_START) {
+
+    if (level & FLOW_START)
+    {
         level &= 0x000f;
         replay.level = level;
+
         for (ctr_t mv = MAX_MOVES; mv >= 0; mv--)
             replay.moves[mv] = 0;
+
         init_wall(level, TRUE);
         xor_map_create();
         xor_map_load(level);
@@ -42,6 +46,7 @@ play_xor(lvl_t level)
     }
     else
         level = replay.level;
+
     game_win_display();
     info_win_repaint();
     screen_data->game_win_repaint_cb = &game_win_display;
@@ -49,10 +54,13 @@ play_xor(lvl_t level)
     info_win_display();
     int state = PLAY_CONTINUE;
 
-    while (state == PLAY_CONTINUE || state == PLAY_PROCESS_MOVE) {
+    while (state == PLAY_CONTINUE || state == PLAY_PROCESS_MOVE)
+    {
         int key = wgetch(game_win);
         su_t move = MV_NONE;
-        switch (key) {
+
+        switch (key)
+        {
         case KEY_LEFT:  case 'z':
             move = MV_LEFT;
             break;
@@ -69,7 +77,8 @@ play_xor(lvl_t level)
             move = MV_PLAYER_SWAP;
             break;
         case 'b':
-            if (player.moves_remaining < MAX_MOVES) {
+            if (!options->oldschool_play && player.moves_remaining < MAX_MOVES) 
+            {
                 replay.moves[player.moves_remaining + 1]
                     ^= MV_REPLAY_BREAK;
                 if (replay.moves[player.moves_remaining + 1]
@@ -81,9 +90,14 @@ play_xor(lvl_t level)
             }
             break;
         case '1': case '2': case '3':
-            options->scroll_thresh = (options->oldschool_play)
-                                            ? 1
-                                            : key - '0';
+            if (!options->oldschool_play)
+            {
+                options->scroll_thresh = key - '0';
+                char buf[40];
+                snprintf(buf, 39, "Scroll threshold %d set", options->scroll_thresh);
+                scr_wmsg_pause(game_win, buf, 0, 0, TRUE);
+		game_win_display();
+            }
             break;
         case 'm':   case 'M':
             game_win_map_display();
@@ -124,5 +138,9 @@ play_xor(lvl_t level)
     }
     if (player.moves_remaining == MAX_MOVES)
         return FLOW_DO_QUIT;
+
+    if (state == PLAY_QUIT)
+        return FLOW_CAN_PLAY;
+
     return FLOW_CONTINUE;
 }

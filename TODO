@@ -1,6 +1,6 @@
 README 1ST
 ----------
-I'm working on a xor 'game engine' library which
+I _was_once_ working on a xor 'game engine' library which
 handles the game behaviour/processing side of things
 seperate from any user interface.
 
@@ -16,31 +16,21 @@ bring about new XorCurses releases.
 
 TODO list:
 
-* use autotools to generate ./configure script and make
-  the code more portable. (hint: i need some help with
-  this as I only have x86 and x86_64 to test with).
-
-* find someone willing to make a debian package ;-)
+* debian and arch AUR packages please
 
 * storage of moves happens in the user's HOME directory,
   would be nice to have it readable/writable by the game
-  for all users - - - - maybe, who knows?
+  for all users.
 
-* when saving a reply have option to prevent continues
-  from it.
+* when playing a replay which is of a completed maze,
+  disallow continue play.
 
-* encrypt moves storage to avoid cheats.
+* encrypt moves storage to avoid cheats. possibly.
 
 * some kind of further puzzle - completion of each level
   provides a letter - rework The Decoder (15) for slight
   variation of original puzzle. (ie a variation on the
   puzzle to become a Member of Xor in the original game).
-
-* restrict access to certain upper levels until certain
-  other levels complete (ie bbc xor version does not allow
-  access to maps 11,13,15 until 10,12,14 complete?? other
-  versions for other computers differed here. possibly.
-  (is this really necessary - i don't think so).
 
 * track progress of level completion (in ~/.xorcurses)
 
@@ -53,13 +43,8 @@ TODO list:
 
 * allow load of new maps.
 
-* multi-coloured ASCII icons might be nice.
- (note: from work done in the ***LONG ABANDONDED*** icon editor
-  a better way of doing the icons was discovered - rather than
-  having a background colour and foreground colour and then
-  char characters - use the chtype or'd with color_pairs and
-  underline/bold attributes - multi-coloured icons seemed to
-  confuse some icons (ie doll) and so i'm no longer concerned
-  about it).
+* keep it simple. one of the niceties of xorcurses is it's
+  small footprint and simplicity. this is to remain.
 
-* experiment with larger icon sizes to at least see how it runs.
+
+

@@ -85,4 +85,9 @@ void player_death(su_t icon);
 
 void player_process_map_pc(struct xor_move *pmv);
 
+#if DEBUG
+void player_state_print(int);
 #endif
+
+#endif
+

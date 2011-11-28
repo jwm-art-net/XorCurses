@@ -29,3 +29,18 @@ void control_flow(int level)
     }
 
 }
+
+#if DEBUG
+void control_flow_print(int flow)
+{
+    EBIT_MSG(flow, FLOW_LOAD_REPLAY)
+    EBIT_MSG(flow, FLOW_START)
+    EBIT_MSG(flow, FLOW_DO_REPLAY)
+    EBIT_MSG(flow, FLOW_DO_GAME)
+    EBIT_MSG(flow, FLOW_INTERUPT_BREAK)
+    EBIT_MSG(flow, FLOW_INTERUPT_MENU)
+    EBIT_MSG(flow, FLOW_DEATH)
+    EBIT_MSG(flow, FLOW_COMPLETE)
+    EBIT_MSG(flow, FLOW_DO_QUIT)
+}
+#endif

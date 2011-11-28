@@ -21,6 +21,8 @@ enum FLOW
     FLOW_START =            0x0020,
     FLOW_CONTINUE =         0x0040,
 
+    FLOW_CAN_PLAY =         0x0080,
+
     FLOW_DO_REPLAY =        0x0100,
     FLOW_DO_GAME =          0x0200,
 
@@ -36,5 +38,9 @@ enum FLOW
 };
 
 void control_flow(int level);
+
+#if DEBUG
+void control_flow_print(int);
+#endif
 
 #endif

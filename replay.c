@@ -22,7 +22,7 @@ enum {
     REPLAY_MENU_BREAK_DEL,  /*  delete breakpoint       */
     REPLAY_MENU_BREAK_SET,  /*  set breakpoint          */
     REPLAY_MENU_SAVE,       /*  save replay             */
-    REPLAY_MENU_RESTART,    /*  restart game            */
+    REPLAY_MENU_RESTART,    /*  restart level           */
     REPLAY_MENU_COUNT
 };
 
@@ -42,7 +42,7 @@ void replay_menu_create()
     replaymenu[REPLAY_MENU_YES] =       "Yes replay";
     shortcuts[REPLAY_MENU_YES] =        'y' | MENU_SHORTCUT_ACTIVATES;
 
-    replaymenu[REPLAY_MENU_NO] =        "No quit game";
+    replaymenu[REPLAY_MENU_NO] =        "No quit level";
     shortcuts[REPLAY_MENU_NO] =         'n';
 
     replaymenu[REPLAY_MENU_QUIT] =      "";
@@ -51,7 +51,7 @@ void replay_menu_create()
     replaymenu[REPLAY_MENU_CONTINUE] =  "Continue replay";
     shortcuts[REPLAY_MENU_CONTINUE] =   'c' | MENU_SHORTCUT_ACTIVATES;
 
-    replaymenu[REPLAY_MENU_PLAY_GAME] = "Play game";
+    replaymenu[REPLAY_MENU_PLAY_GAME] = "Play level";
     shortcuts[REPLAY_MENU_PLAY_GAME] =  'p' | MENU_SHORTCUT_ACTIVATES;
 
     /*  both shortcuts for the two breakpoints are set to same key.
@@ -64,10 +64,10 @@ void replay_menu_create()
     replaymenu[REPLAY_MENU_BREAK_SET] = "Set breakpoint";
     shortcuts[REPLAY_MENU_BREAK_SET] =  'b' | MENU_SHORTCUT_ACTIVATES;
 
-    replaymenu[REPLAY_MENU_SAVE] =      "Save";
+    replaymenu[REPLAY_MENU_SAVE] =      "Save replay";
     shortcuts[REPLAY_MENU_SAVE] =       's';
 
-    replaymenu[REPLAY_MENU_RESTART] =   "Restart game";
+    replaymenu[REPLAY_MENU_RESTART] =   "Restart level";
     shortcuts[REPLAY_MENU_RESTART] =    '*' | MENU_SHORTCUT_ACTIVATES;
 }
 
@@ -78,25 +78,54 @@ void replay_menu_destroy()
 void replay_menu_config_for(int flow)
 {
     bool replay_continue = FALSE;
+    bool play_continue = TRUE;
     int mv_i = player.moves_remaining + 1;
+
     if (player.replay)
+    {
         if (!(replay.moves[player.moves_remaining] & MV_PLAYER_QUIT))
+        {
             if ((flow & FLOW_INTERUPT_MENU)
               ||(flow & FLOW_INTERUPT_BREAK))
+            {
                 replay_continue = TRUE;
+            }
+        }
+    }
+
     if (replay_continue)
         shortcuts[REPLAY_MENU_CONTINUE]
             &= ~ (MENU_HIDDEN | MENU_DISABLED);
     else
         shortcuts[REPLAY_MENU_CONTINUE]
             |= MENU_HIDDEN | MENU_DISABLED;
-    if (!(flow & FLOW_DEATH) && player.moves_remaining >= 0)
+
+    if (options->oldschool_play && !(flow & FLOW_CAN_PLAY))
+	play_continue = FALSE;
+
+    if (play_continue
+     && !(flow & FLOW_DEATH)
+     && !(flow & FLOW_COMPLETE)
+     && player.moves_remaining >= 0)
+    {
         shortcuts[REPLAY_MENU_PLAY_GAME]
             &= ~ (MENU_HIDDEN | MENU_DISABLED);
+    }
     else
         shortcuts[REPLAY_MENU_PLAY_GAME]
             |= MENU_HIDDEN | MENU_DISABLED;
-    if (replay.moves[mv_i] & MV_REPLAY_BREAK) {
+
+    if (options->oldschool_play)
+    {
+        shortcuts[REPLAY_MENU_BREAK_DEL]
+            |= (MENU_HIDDEN | MENU_DISABLED);
+        shortcuts[REPLAY_MENU_BREAK_SET]
+            |= MENU_HIDDEN | MENU_DISABLED;
+        shortcuts[REPLAY_MENU_STATUS]
+            |= (MENU_HIDDEN | MENU_DISABLED);
+    }
+    else if (replay.moves[mv_i] & MV_REPLAY_BREAK)
+    {
         shortcuts[REPLAY_MENU_BREAK_DEL]
             &= ~ (MENU_HIDDEN | MENU_DISABLED);
         shortcuts[REPLAY_MENU_BREAK_SET]
@@ -204,6 +233,7 @@ replay_xor(int flow)
     nodelay(game_win, TRUE);
     bool breakpoint = FALSE;
     bool interupt = FALSE;
+
     while ((state == PLAY_CONTINUE
           ||state == PLAY_PROCESS_MOVE)
          &&breakpoint == FALSE)
@@ -240,21 +270,38 @@ replay_xor(int flow)
             if (move & MV_REPLAY_BREAK)
             {
                 move &= ~ MV_REPLAY_BREAK;
-                breakpoint = TRUE;
+                if (!options->oldschool_play)
+                    breakpoint = TRUE;
             }
             state = player_move(move) ^ PLAY_RECORD;
             if (state != PLAY_QUIT)
                 player.moves_remaining--;
         }
         info_win_display();
-            if ((!player.p0_alive) && (!player.p1_alive))
-                state = PLAY_GOTCHA;
+        if ((!player.p0_alive) && (!player.p1_alive))
+            state = PLAY_GOTCHA;
     }
     nodelay(game_win, FALSE);
+
+#if DEBUG
+player_state_print(state);
+#endif
+
+    if (state == PLAY_ZERO_MOVES || state == PLAY_GOTCHA)
+        return FLOW_DEATH;
+
+    if (state == PLAY_COMPLETE)
+        return FLOW_COMPLETE;
+
     if (interupt)
         return FLOW_INTERUPT_MENU;
+
     if (breakpoint)
         return FLOW_INTERUPT_BREAK;
+
+    if (state == PLAY_QUIT)
+        return FLOW_CAN_PLAY;
+
     return FLOW_START;
 }
 

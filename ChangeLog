@@ -1,3 +1,27 @@
+2011-11-28 James Morris <james@jwm-art.net>
+
+	* Oldschool difficulty setting: once replay has started,
+	  replay must complete before player is allowed to resume
+	  gameplay. Setting of breakpoints in replay is disallowed.
+	  If a replay is loaded while in oldschool mode, breakpoints
+	  are ignored.
+
+	* Scroll Threshhold: when scroll threshhold is changed
+	  (by pressing 1, 2, or 3 during play) visual feedback is
+	  provided (scroll threshhold does not work in oldschool
+	  mode).
+
+	* control_flow.h, debug.h, player.h, replay.h: additional
+	  helpers for displaying enum/bitfield information.
+
+	* control_flow.[ch]: addition FLOW enum entry 
+
+	* replay.c: fixed bugs allowing game play
+	  continuation after player death or level complete/exit.
+	  Corrected some menu entry names.
+
+	* control_flow.h
+
 2011-11-22 James Morris <james@jwm-art.net>
 
 	* +debug.h for err_msg debug #defines.
