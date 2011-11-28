@@ -1,4 +1,5 @@
 *.o
 xorcurses
+*.bz2
 
 

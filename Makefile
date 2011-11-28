@@ -38,11 +38,20 @@ CFLAGS:=$(CFLAGS) -O2
 
 PROG:=xorcurses
 CC:=gcc
+VERSION:=0.1.3
+
+CFLAGS:=$(CFLAGS) -DVERSION=\"$(VERSION)\"
 
 LIBS   :=-lcurses
 SRC    :=$(wildcard *.c)
 OBJS   :=$(patsubst %.c, %.o, $(SRC))
 HEADERS:=$(wildcard *.h)
+HELP   :=$(wildcard help*.txt)
+MAPS   :=$(wildcard maps/[1-9]*.txt)
+
+DISTFILES :=ChangeLog CHANGES INSTALL Makefile NEWS README TODO
+DIST      :=XorCurses-$(VERSION)
+DISTDIR   :=$(DIST)/
 
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(PROG) $(LIBS)
@@ -58,9 +67,21 @@ clean:
 install: $(PROG)
 	install $(PROG) $(BINDIR)
 	install -d $(MAPDIR)
-	install -t $(MAPDIR) maps/[1-9]*
-	install -t $(SHAREDIR) help*.txt
+	install -t $(MAPDIR) $(MAPS)
+	install -t $(SHAREDIR) $(HELP)
 
 uninstall:
 	rm -f $(BINDIR)$(PROG)
 	rm -rf $(SHAREDIR)
+
+dist:
+	rm -rf $(DISTDIR)
+	mkdir $(DISTDIR)
+	cp $(SRC) $(DISTDIR)
+	cp $(HEADERS) $(DISTDIR)
+	cp $(HELP) $(DISTDIR)
+	mkdir $(DISTDIR)/maps
+	cp $(MAPS) $(DISTDIR)/maps
+	cp $(DISTFILES) $(DISTDIR)
+	tar -cjf $(DIST).tar.bz2 $(DISTDIR)
+	rm -rf $(DISTDIR)

@@ -1,7 +1,6 @@
 #include "splash.h"
 #include "types.h"
 #include "screen.h"
-#include "version.h"
 
 void
 splash()

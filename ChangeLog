@@ -22,6 +22,10 @@
 
 	* control_flow.h
 
+	* version.h: deleted.
+	  VERSION is now set in Makefile and passed compile time.
+
+
 2011-11-22 James Morris <james@jwm-art.net>
 
 	* +debug.h for err_msg debug #defines.
