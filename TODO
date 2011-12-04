@@ -1,50 +1,29 @@
-README 1ST
-----------
-I _was_once_ working on a xor 'game engine' library which
-handles the game behaviour/processing side of things
-seperate from any user interface.
-
-The idea being that XorCurses2 will use this
-library. And, for example, an SDL version -
-XorSDL - will also use the same library
-and so avoid code duplication.
-
-So basically, development of XorCurses has stopped.
-Only bug fixes as they are discovered are likely to
-bring about new XorCurses releases.
-
-
 TODO list:
 
-* debian and arch AUR packages please
+* storage of best scores happens in user HOME directory.
+  would be nice to have it readable/writable by the game
+  for all users.
 
-* storage of moves taken to complete a level happens in
-  the user's HOME directory - it would be nice to have
-  it readable/writable by the game for all users.
+* order of xorcurses membership: provide an anagram (or
+  other puzzle) a single part of which is provided on
+  completion of each level. these parts (which would be
+  single letters if puzzle is an anagram) would be
+  obtained from a server (ie jwm-art.net) rather than
+  in-game. game would upload replay, server would
+  corroborate it before returning puzzle-part. 
 
-* when playing a replay which is of a complete level,
-  disallow continue play.
+* encryption: if not applied to all maps, at least, it
+  should be applied to map 15 which visually, provides
+  clues (ie how to convert letters) for solving the
+  anagram. replays don't necessitate encryption.
 
-* encrypt moves storage to avoid cheats. possibly.
+* allow load of new maps - but this requires more
+  complex handling of scores and replays, and
+  tracking of map directories etc.
 
-* some kind of further puzzle - completion of each level
-  provides a letter - rework The Decoder (15) for slight
-  variation of original puzzle. (ie a variation on the
-  puzzle to become a Member of Xor in the original game).
-
-* track progress of level completion (in ~/.xorcurses)
-
-* convert maps to binary format (such that the map pick-ups
-  to view map don't require blah blah blah blah x blah y).
-  also to prevent easy cheating and viewability of the clue
-  in level 15.
-
-* optimize/untangle code
-
-* allow load of new maps.
-
-* keep it simple. one of the niceties of xorcurses is it's
-  small footprint and simplicity. this is to remain.
-
+---
+notes: xorengine idea on long term hold. for details
+see older revisions of this file and/or:
+http://jwm-art.net/o7.php?p=j20091027-2135
 
 

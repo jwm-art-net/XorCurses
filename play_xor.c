@@ -34,6 +34,8 @@ play_xor(lvl_t level)
     {
         level &= 0x000f;
         replay.level = level;
+        replay.canplay = 1;
+        replay.hasexit = 0;
 
         for (ctr_t mv = MAX_MOVES; mv >= 0; mv--)
             replay.moves[mv] = 0;
@@ -77,7 +79,8 @@ play_xor(lvl_t level)
             move = MV_PLAYER_SWAP;
             break;
         case 'b':
-            if (!options->oldschool_play && player.moves_remaining < MAX_MOVES) 
+            if (!options->oldschool_play
+             && player.moves_remaining < MAX_MOVES) 
             {
                 replay.moves[player.moves_remaining + 1]
                     ^= MV_REPLAY_BREAK;
@@ -94,9 +97,10 @@ play_xor(lvl_t level)
             {
                 options->scroll_thresh = key - '0';
                 char buf[40];
-                snprintf(buf, 39, "Scroll threshold %d set", options->scroll_thresh);
+                snprintf(buf, 39, "Scroll threshold %d set",
+                                    options->scroll_thresh);
                 scr_wmsg_pause(game_win, buf, 0, 0, TRUE);
-		game_win_display();
+                game_win_display();
             }
             break;
         case 'm':   case 'M':
@@ -122,7 +126,7 @@ play_xor(lvl_t level)
                         |= MV_REPLAY_BREAK;
                 }
                 if (move == MV_PLAYER_QUIT)
-                    replay.moves[player.moves_remaining] |= move;
+                    replay.moves[player.moves_remaining] = move;
                 else
                     replay.moves[player.moves_remaining--] = move;
                 state ^= PLAY_RECORD;
@@ -133,6 +137,8 @@ play_xor(lvl_t level)
         }
     }
     if (state == PLAY_COMPLETE) {
+        replay.moves[player.moves_remaining] = MV_PLAYER_EXIT;
+        replay.hasexit = 1;
         save_score(map->level, MAX_MOVES - player.moves_remaining);
         return FLOW_COMPLETE;
     }

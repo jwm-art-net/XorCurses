@@ -27,6 +27,8 @@ struct xor_replay
 {
     su_t level;
     su_t moves[MAX_MOVES + 1];
+    su_t canplay;
+    su_t hasexit;
 } replay;
 
 void replay_menu_create();

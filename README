@@ -21,8 +21,8 @@ Please view the INSTALL file.
 
 TERMINALS
 
-There is an occassional problem with XorCurses running
-in some terminals when the terminal window is
+There is/has been an occassional problem with XorCurses
+running in some terminals when the terminal window is
 resized. XorCurses seems to lag behind a resize
 step. This behaviour has been spotted in other more
 well established ncurses apps too.
@@ -46,7 +46,7 @@ press number keys 1 to 9 to select from the
 available levels.
 
 Pressing d or D will change the difficulty. The old
-school setting is more difficult: he game area is
+school setting is more difficult: the game area is
 restricted to 8x8 and the scrolling threshold is set
 at 1 so you can't see so easily what is beyond your
 player. Additionally, in oldschool mode, replays cannot

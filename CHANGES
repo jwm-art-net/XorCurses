@@ -1,4 +1,22 @@
 -----------------------------------------------
+0.1.4
+
+* scores and replays no longer saved in binary
+  format. binary dot files in a user home dir don't
+  seem to be the done thing.
+
+* scores and replays now have checksums to discourage
+  tampering.
+
+* a replay saved of a finished level will no longer
+  allow player to stop replay and resume playing from
+  any point.
+
+* replay now saves scroll thresh and difficulty
+  setting.
+
+
+-----------------------------------------------
 0.1.3
 
 * The oldschool difficulty level now prevents the player

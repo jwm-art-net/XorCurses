@@ -1,3 +1,28 @@
+2011-12-04 James Morris <james@jwm-art.net>
+
+	* fletcher.[ch]: new file implementing fletcher16 checksum
+	  see http://en.wikipedia.org/wiki/Fletcher%27s_checksum
+
+	* types.c: new file implements function read_int (used
+	  by scores.c and replay.c.
+
+	* actions.h: addition of new action MV_PLAYER_EXIT
+	* level_menu.c: improved update mechanism for difficulty.
+
+	* play_xor.c: MV_PLAYER_QUIT is set rather than or'd.
+	  PLAY_COMPLETE modifications for replay (see below).
+
+	* replay.[ch]: replay file no longer consists of binary data.
+	  new struct members: canplay and hasexit, used to prevent
+	  play continuation from completed replays, and notify
+	  replay mechanism of exit state before replay commenced.
+	  file io code seperated out from UI load/save code.
+	  use of fletcher16 checksums to discourage tampering.
+	  saving of scroll thresh and difficulty.
+
+	* scores.[ch]: scores file no longer consists of binary data.
+	  use of fletcher16 to discourage tampering.
+
 2011-11-28 James Morris <james@jwm-art.net>
 
 	* Oldschool difficulty setting: once replay has started,

@@ -118,26 +118,52 @@ level_menu()
     int select = LVL_MENU_FIRST;
     int restore = -1;
     char* dif_ptr = strstr(lvlmenu[LVL_MENU_DIFFICULTY], "new");
-    do {
+
+    while (1)
+    {
         wclear(info_win);
         screen_data->game_win_repaint_cb = &splash;
         screen_data->info_win_repaint_cb = &level_menu_repaint;
         level_menu_repaint();
         splash();
+
         if (restore>=0)
             select = restore;
+
         select = scr_menu(info_win,
                           lvlmenu, LVL_MENU_COUNT, shortcuts,
                           select, &restore);
-        switch(select){
+
+        su_t oldschool = options->oldschool_play;
+
+        switch(select)
+        {
         case LVL_MENU_QUIT:
             return;
+
         case LVL_MENU_LOAD_REPLAY:
             control_flow(0 | FLOW_LOAD_REPLAY);
             break;
+
         case LVL_MENU_DIFFICULTY:
             options->oldschool_play ^= 1;
-            if (options->oldschool_play) {
+            break;
+
+        case LVL_MENU_HELP:
+            help_menu();
+            if (restore)
+                select = restore;
+            break;
+
+        default:
+            if (select >= MIN_LEVEL && select <= MAX_LEVEL)
+                control_flow(select);
+        }
+
+        if (oldschool != options->oldschool_play)
+        {   /* more than one route to changing oldschool state */
+            if (options->oldschool_play)
+            {
                 strncpy(dif_ptr, "old", 3);
                 options->scroll_thresh = 1;
             }
@@ -145,21 +171,12 @@ level_menu()
                 strncpy(dif_ptr, "new", 3);
                 options->scroll_thresh = 2;
             }
+
             if (restore)
                 select = restore;
+
             screen_resize();
-            break;
-        case LVL_MENU_HELP:
-            help_menu();
-            if (restore)
-                select = restore;
-            break;
-        default:
-          {
-            if (select >= MIN_LEVEL && select <= MAX_LEVEL)
-                control_flow(select);
-          }
         }
-    } while (1);
+    }
 }
 

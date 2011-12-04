@@ -50,6 +50,7 @@ enum MOVES
     MV_PLAYER_QUIT = 0x20,
     MV_REPLAY_BREAK= 0x40,  /* or'd with any of above to autostop       */
                             /* replay.                                  */
+    MV_PLAYER_EXIT = 0x80   /* player finishes and exits                */
 };
 
 enum MVINIT                 /* movement without contact */

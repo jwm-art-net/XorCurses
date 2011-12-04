@@ -13,8 +13,8 @@
 void
 explode_process_detonator(struct xmv_link *detlnk)
 {
-    debug("explode_process_detonator(detlnk=%lx)", (unsigned long) detlnk);
-    debug("detlnk->xmv=%lx\n", (unsigned long) detlnk->xmv);
+    debug("explode_process_detonator(detlnk=%lx)\n", (unsigned long)detlnk);
+    debug("detlnk->xmv=%lx\n", (unsigned long)detlnk->xmv);
 
     struct xor_move *detmv = detlnk->xmv;
 
@@ -135,7 +135,7 @@ explode_process_detonator(struct xmv_link *detlnk)
               "(now %lx->right)= %lx\n",
                (unsigned long) detlnk->xmv, (unsigned long) detmv,
                (unsigned long) detmv->chain);
-        debug("freeing detmv");
+        debug("freeing detmv\n");
 
         detlnk->xmv = detmv->chain;
         free(detmv);
