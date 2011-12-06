@@ -264,10 +264,10 @@ scr_wmsg_pause(
     bool autofree = FALSE;
     if (!msgxy) {
         msgxy = malloc(sizeof(struct scrxy));
+        msgxy->x = (getmaxx(win) - (len + 2)) / 2;
+        msgxy->y = (getmaxy(win) - 3) / 2;
         autofree = TRUE;
     }
-    msgxy->x = (getmaxx(win) - (len + 2)) / 2;
-    msgxy->y = (getmaxy(win) - 3) / 2;
     char spc[IOBUF + 1];
     for (int i = 0; i <= IOBUF; ++i)
         spc[i] = ' ';

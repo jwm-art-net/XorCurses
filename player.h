@@ -33,9 +33,13 @@ enum PLAY_STATE
 
 struct xor_player
 {
-    ctr_t masks_collected;
-    ctr_t moves_remaining;
-    xy_t map_view_y;
+    ctr_t   masks_collected;
+    ctr_t   moves_remaining;
+
+    struct xor_move xmv[2];
+
+    xy_t    map_view_y;
+
     unsigned player:1;          /* set = player 2, not set = player 1 */
     unsigned p0_alive:1;
     unsigned p1_alive:1;

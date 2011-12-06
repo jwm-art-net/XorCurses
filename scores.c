@@ -83,6 +83,13 @@ load_scores()
             return;
         }
 
+        buf[79] = '\0';
+
+        bp = buf; /* trim newlines etc */
+        while (*bp >= ' ')
+            bp++;
+        *bp = '\0';
+
         if (sscanf(buf, "%02x%02x", &read_chka, &read_chkb) != 2)
         {
             debug("failed to read level %d score checksum\n", i);
@@ -90,6 +97,7 @@ load_scores()
         }
 
         bp = buf + 4;
+
         fletcher16(&calc_chka, &calc_chkb, (uint8_t*)bp, strlen(bp));
 
         if (read_chka != calc_chka || read_chkb != calc_chkb)
@@ -100,9 +108,9 @@ load_scores()
             return;
         }
 
-        if (sscanf(buf, "%02d%04d", &lvl, &score) != 2 || lvl != i)
+        if (sscanf(bp, "%02d%04d", &lvl, &score) != 2 || lvl != i)
         {
-            debug("failed to read level %d score\n", i);
+            debug("failed to read level %d == %d score\n", lvl, i);
             return;
         }
     }

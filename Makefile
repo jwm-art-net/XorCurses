@@ -22,7 +22,7 @@ CFLAGS:= -std=gnu99 -Wall -Wextra -pedantic -DDATADIR=\"$(SHAREDIR)\"
 # movements and bomb detonations. Redirect stderr
 # if you use it.
 
-CFLAGS:=$(CFLAGS) -DDEBUG -ggdb
+CFLAGS:=$(CFLAGS) -ggdb -DDEBUG
 
 #CFLAGS:=$(CFLAGS) -O2
 

@@ -8,6 +8,7 @@
 #include "options.h"
 #include "debug.h"
 #include "fletcher.h"
+#include "exit.h"
 
 
 #include <string.h>
@@ -83,9 +84,11 @@ void replay_menu_create()
     shortcuts[REPLAY_MENU_RESTART] =    '*' | MENU_SHORTCUT_ACTIVATES;
 }
 
+
 void replay_menu_destroy()
 {
 }
+
 
 void replay_menu_config_for(int flow)
 {
@@ -128,7 +131,7 @@ void replay_menu_config_for(int flow)
         shortcuts[REPLAY_MENU_PLAY_GAME]
             |= MENU_HIDDEN | MENU_DISABLED;
 
-    if (options->oldschool_play)
+    if (options->oldschool_play || !replay.canplay)
     {
         shortcuts[REPLAY_MENU_BREAK_DEL]
             |= (MENU_HIDDEN | MENU_DISABLED);
@@ -236,6 +239,7 @@ int replay_xor(int flow)
         player.replay = TRUE;
         init_wall(replay.level, TRUE);
         game_win_init_views();
+        game_win_wipe_out();
     }
     game_win_display();
     info_win_update_map(player.have_map);
@@ -311,7 +315,10 @@ player_state_print(state);
         return FLOW_DEATH;
 
     if (state == PLAY_COMPLETE)
+    {
+        player_exit_animate(&player.xmv[player.player]);
         return FLOW_COMPLETE;
+    }
 
     if (interupt)
         return FLOW_INTERUPT_MENU;

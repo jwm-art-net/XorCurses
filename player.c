@@ -12,6 +12,10 @@
 #include <time.h>
 #include <stdlib.h>
 
+
+static enum PLAY_STATE player_process_push(struct xor_move* pmv);
+
+
 void
 player_init()
 {
@@ -25,6 +29,15 @@ player_init()
     player.wall_vis = TRUE;
     player.map_view_y = 0;
     player.set_breakpoint = FALSE;
+
+    int p;
+
+    for (p = 0; p < 2; ++p)
+    {
+        player.xmv[p].from_x = map->player[p].x;
+        player.xmv[p].from_y = map->player[p].y;
+        player.xmv[p].from_obj = ICON_PLAYER0 + p;
+    }
 }
 
 enum PLAY_STATE
@@ -32,136 +45,115 @@ player_move(su_t move)
 {
     if (player.moves_remaining == 0)
         return PLAY_ZERO_MOVES;
+
     if (move & MV_PLAYER_QUIT)
         return (player.moves_remaining == MAX_MOVES)
                 ? PLAY_QUIT
                 : PLAY_QUIT | PLAY_RECORD;
-    if (move == MV_PLAYER_SWAP) {
-        if ((player.player ? player.p0_alive : player.p1_alive)) {
+
+    if (move == MV_PLAYER_SWAP)
+    {
+        if ((player.player ? player.p0_alive : player.p1_alive))
+        {
             player.player ^= 1;
             game_win_swap_update();
-            game_win_display(map);
+            game_win_display();
             info_win_update_player_icon();
             return PLAY_CONTINUE | PLAY_RECORD;
         }
         return PLAY_CONTINUE;
     }
-    struct xor_move *pmv = create_xor_move(map->player[player.player].x,
-                                           map->player[player.player].y, move);
 
-    /* cont required after switch */
+    struct xor_move* pmv = &player.xmv[player.player];
+    pmv->dir = move;
     ct_t cont = move_object_init(pmv);
 
-    switch (cont) {
+    switch (cont)
+    {
     case CT_BLOCK:
-        free(pmv);
         return PLAY_CONTINUE;
+
     case CT_EXIT:
-        free(pmv);
+
         if (player.masks_collected == map->mask_count)
             return PLAY_COMPLETE | PLAY_RECORD;
+
         return PLAY_CONTINUE;
+
     case CT_TELEPORT:
-        if (player_teleport(pmv)) {
+
+        if (player_teleport(pmv))
+        {
             player_process_old_pos(pmv);
-            free(pmv);
             return PLAY_CONTINUE | PLAY_RECORD;
         }
-        free(pmv);
+
         return PLAY_CONTINUE;
-        break;
+
     default:
         break;
     }
-    struct xor_move *omv = player_process_move(pmv);
 
-    if (omv) {
-        if (omv == pmv) {
-            game_win_move_player(pmv);
-            if (cont == CT_PICKUP)
-                player_process_collect(pmv);
-            player_process_old_pos(pmv);
-        }
-        else {
-            game_win_move_object(omv);
-            game_win_move_player(pmv);
-            if (cont == CT_PICKUP)
-                player_process_collect(pmv);
-            pushed_process_new_pos(omv);
-            player_process_old_pos(pmv);
-        }
-        free(pmv);
-        return PLAY_PROCESS_MOVE | PLAY_RECORD;
-    }
-    free(pmv);
-    return PLAY_CONTINUE;
-}
+    if (cont & CT_PICKUP)
+        player_process_collect(pmv);
 
-struct xor_move *
-player_process_move(struct xor_move *pmv)
-{
-    struct xor_move *omv = pmv;
+    if (cont & CT_PUSH || cont & CT_HARDPUSH)
+        return player_process_push(pmv);
 
-    enum CONTACT cont = actions[pmv->to_obj].cont;
-
-    if (cont != CT_PASS) {
-        if (cont & CT_PUSH || cont == CT_HARDPUSH) {
-            omv = create_xor_move(pmv->to_x, pmv->to_y, pmv->dir);
-            if (move_object_init(omv) != CT_PASS) {
-                free(omv);
-                return 0;       /* blocked, blocking player's move */
-            }
-            map->buf[omv->from_y][omv->from_x] = ICON_SPACE;
-            map->buf[omv->to_y][omv->to_x] = omv->from_obj;
-        }
-    }
-    map->player[player.player].x = pmv->to_x;
-    map->player[player.player].y = pmv->to_y;
-    map->buf[pmv->to_y][pmv->to_x] = pmv->from_obj;
+    map->buf[pmv->to_y]  [pmv->to_x] = pmv->from_obj;
     map->buf[pmv->from_y][pmv->from_x] = ICON_SPACE;
-    return omv;
+
+    game_win_move_player(pmv);
+    player_process_old_pos(pmv);
+    pmv->from_x = pmv->to_x;
+    pmv->from_y = pmv->to_y;
+    pmv->from_obj = pmv->to_obj;
+
+    return PLAY_PROCESS_MOVE | PLAY_RECORD;
 }
 
-enum PLAY_STATE
-player_process_old_pos(struct xor_move *pmv)
+
+enum PLAY_STATE player_process_old_pos(struct xor_move *pmv)
 {
-    debug("\nplayer_process_old_pos(xor_move* pmv=%lx)\n",
-           (unsigned long) pmv);
+    debug("(xor_move* pmv=%lx)\n", (unsigned long) pmv);
 
-    su_t check1 = (MV_HORIZ & pmv->dir) ? MV_UP : MV_RIGHT;
-
-    su_t check2 = (check1 == MV_UP) ? MV_RIGHT : MV_UP;
+    su_t check1 = (MV_HORIZ & pmv->dir) ? MV_UP    : MV_RIGHT;
+    su_t check2 = (check1 == MV_UP)     ? MV_RIGHT : MV_UP;
 
     su_t gdir1 = (check1 == MV_UP) ? MV_DOWN : MV_LEFT;
-
     su_t gdir2 = (check2 == MV_UP) ? MV_DOWN : MV_LEFT;
 
     xy_t x = pmv->from_x + (check1 == MV_RIGHT ? 1 : 0);
-
-    xy_t y = pmv->from_y - (check1 == MV_UP ? 1 : 0);
+    xy_t y = pmv->from_y - (check1 == MV_UP    ? 1 : 0);
 
     struct xor_move *gravmv = create_gravity_chain_xydir(x, y, gdir1);
 
     if (gravmv)
         move_gravity_process(gravmv);
+
     x = pmv->from_x + (check2 == MV_RIGHT ? 1 : 0);
     y = pmv->from_y - (check2 == MV_UP ? 1 : 0);
+
     if ((gravmv = create_gravity_chain_xydir(x, y, gdir2)))
         move_gravity_process(gravmv);
+
     return PLAY_PROCESS_MOVE;
 }
 
-enum PLAY_STATE
-pushed_process_new_pos(struct xor_move *omv)
+
+enum PLAY_STATE pushed_process_new_pos(struct xor_move *omv)
 {
     debug("\npushed_process_new_pos(xor_move* omv=%lx)\n",
            (unsigned long) omv);
 
     if (omv->from_obj != ICON_DOLL)
         omv->dir = actions[omv->from_obj].mvi_dir;
+
     omv->from_x = omv->to_x;
     omv->from_y = omv->to_y;
-    if (move_object_init(omv) == CT_PASS) {
+
+    if (move_object_init(omv) == CT_PASS)
+    {
         /*  the call to move_object_init will be repeated by
            move_gravity_process... but more importantly, having
            it here prevents a bomb exploding when an object is
@@ -175,33 +167,72 @@ pushed_process_new_pos(struct xor_move *omv)
     }
     else
         free(omv);
+
     return PLAY_PROCESS_MOVE;
 }
 
-void
-player_process_collect(struct xor_move *pmv)
+
+void player_process_collect(struct xor_move *pmv)
 {
-    switch (pmv->to_obj) {
+    switch (pmv->to_obj)
+    {
     case ICON_MASK:
         player.masks_collected++;
         info_win_map_erase_mask(pmv->to_x, pmv->to_y);
         if ((player.masks_collected % 4) == 0)
             info_win_update_map(player.have_map);
         break;
+
     case ICON_MAP:
         player_process_map_pc(pmv);
         break;
+
     case ICON_SWITCH:
         player.wall_vis = (player.wall_vis ? FALSE : TRUE);
         init_wall(map->level, player.wall_vis);
         game_win_display();
+
     default:
         break;
     }
 }
 
-void
-player_death(su_t icon)
+
+static enum PLAY_STATE player_process_push(struct xor_move* pmv)
+{
+    struct xor_move* omv =
+        create_xor_move(pmv->to_x, pmv->to_y, pmv->dir);
+
+    if (move_object_init(omv) != CT_PASS)
+    {
+        destroy_gravity_chain(omv);
+        return PLAY_CONTINUE;
+    }
+
+    map->buf[omv->to_y]  [omv->to_x] =   omv->from_obj;
+    map->buf[omv->from_y][omv->from_x] = ICON_SPACE;
+    map->buf[pmv->to_y]  [pmv->to_x] =   pmv->from_obj;
+    map->buf[pmv->from_y][pmv->from_x] = ICON_SPACE;
+
+    game_win_icon_display(omv->from_x, omv->from_y, ICON_SPACE);
+    game_win_icon_display(omv->to_x,   omv->to_y,   omv->from_obj);
+
+/*game_win_display();*/
+
+    game_win_move_player(pmv);
+    omv->from_x = omv->to_x;
+    omv->from_y = omv->to_y;
+    pushed_process_new_pos(omv);/* and free(omv) */
+    player_process_old_pos(pmv);
+    pmv->from_obj = pmv->to_obj;
+    pmv->from_x = pmv->to_x;
+    pmv->from_y = pmv->to_y;
+
+    return PLAY_PROCESS_MOVE | PLAY_RECORD;
+}
+
+
+void player_death(su_t icon)
 {
     su_t p = (icon == ICON_PLAYER0) ? 0 : 1;
     char *msg[2] = { " Oops! ", "Gotcha!" };
@@ -214,7 +245,9 @@ player_death(su_t icon)
         player.player ^= 1;
         info_win_update_player_icon();
     }
+
     scr_wmsg_pause(game_win, msg[p], 0, 0, TRUE);
+
     if (player.replay)
         nodelay(game_win, TRUE);
 

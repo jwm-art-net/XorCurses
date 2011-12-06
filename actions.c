@@ -25,6 +25,7 @@ struct xor_action actions[ICON_XXX] = {
     {MVI_PLAYER, CT_BLOCK, MV_ANY, MV_NONE}     /* questor   */
 };
 
+
 struct xor_move *
 create_xor_move(xy_t x, xy_t y, su_t move)
 {
@@ -32,6 +33,7 @@ create_xor_move(xy_t x, xy_t y, su_t move)
 
     if (!(xmv = malloc(sizeof(struct xor_move))))
         return 0;
+
     xmv->from_obj = map->buf[y][x];
     xmv->from_x = x;
     xmv->from_y = y;

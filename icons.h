@@ -1,4 +1,4 @@
-/****************************************************************************
+/***************************************************************************
     This file is part of XorCurses a port/remake of the game Xor
     (originally by Astral Software) to the Linux console using
     ncurses.
@@ -14,7 +14,7 @@
                 to be played. misc conversion routines for map character to
                 icon type enumeration, etc.
 
-****************************************************************************/
+***************************************************************************/
 #ifndef _ICONS_H
 #define _ICONS_H
 

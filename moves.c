@@ -6,86 +6,86 @@
 #include <time.h>
 #include "debug.h"
 
-ct_t
-move_object_init(struct xor_move * move)
+
+ct_t move_object_init(struct xor_move * move)
 {
     move->to_x = move->from_x;
     move->to_y = move->from_y;
-    switch (move->dir) {
-    case MV_LEFT:
-        move->to_x--;
-        break;
-    case MV_RIGHT:
-        move->to_x++;
-        break;
-    case MV_UP:
-        move->to_y--;
-        break;
-    case MV_DOWN:
-        move->to_y++;
-        break;
-    default:
-        return CT_ERROR;
+
+    switch (move->dir)
+    {
+    case MV_LEFT:   move->to_x--; break;
+    case MV_RIGHT:  move->to_x++; break;
+    case MV_UP:     move->to_y--; break;
+    case MV_DOWN:   move->to_y++; break;
+    default:    return CT_ERROR;
     }
+
     move->from_obj = map->buf[move->from_y][move->from_x];
-    move->to_obj = map->buf[move->to_y][move->to_x];
+    move->to_obj =   map->buf[move->to_y][move->to_x];
     ct_t cont = actions[move->to_obj].cont;
 
     /* ------------------------------------------ */
     /* conditions apply both to player and object */
     if (cont == CT_BLOCK || cont == CT_PASS)
         return cont;
+
     if (move->from_obj == ICON_DOLL)
         return CT_BLOCK;
-    if (cont == CT_FILTER) {
-        if (actions[move->to_obj].cont_dir & move->dir)
-            return CT_PASS;
-        return CT_BLOCK;
-    }
+
+    if (cont == CT_FILTER)
+        return (actions[move->to_obj].cont_dir & move->dir)
+                    ? CT_PASS
+                    : CT_BLOCK;
+
     /* -------------------------------- */
     /* conditions which apply to player */
-    if (actions[move->from_obj].mvini & MVI_PLAYER) {
-        switch (cont) {
+    if (actions[move->from_obj].mvini & MVI_PLAYER)
+    {
+        switch (cont)
+        {
         case CT_EXIT:
         case CT_PICKUP:
         case CT_HARDPUSH:
         case CT_TELEPORT:
             return cont;
+
         default:
-            if (cont & CT_PUSH) {
-                if (actions[move->to_obj].cont_dir & move->dir)
-                    return CT_PUSH;
-                else
-                    return CT_BLOCK;
-            }
+            if (cont & CT_PUSH)
+                return (actions[move->to_obj].cont_dir & move->dir)
+                    ? CT_PUSH
+                    : CT_BLOCK;
+
             return CT_ERROR;
         }
     }
+
     /* -------------------------------- */
     /* conditions which apply to object */
-    if (cont & CT_EXPLODE)
-        return CT_EXPLODE;
-    return CT_BLOCK;
+
+    return (cont & CT_EXPLODE) ? CT_EXPLODE : CT_BLOCK;
 }
 
-void
-move_gravity_process(struct xor_move *xmv)
+
+void move_gravity_process(struct xor_move *xmv)
 {
     debug("\nmove_gravity_process(xor_move* xmv=%lx)\n",(unsigned long)xmv);
+
+    struct timespec rpause;
+    struct timespec repause;
 
     xmvlist_create();
     xmvlist_append_xor_move(xmv);
     xmvlist_first();
-    struct timespec rpause;
-
-    struct timespec repause;
-
     rpause.tv_sec = 0;
+
     if (player.replay)
         rpause.tv_nsec = options_replay_speed(options->replay_speed);
     else
         rpause.tv_nsec = 20000000L;
-    while (xmvlist->current) {
+
+    while (xmvlist->current)
+    {
         struct xor_move *xmv = xmvlist->current->xmv;
 
         debug("xmvlist->current=%lx->xmv=%lx\n",
@@ -93,7 +93,8 @@ move_gravity_process(struct xor_move *xmv)
 
         struct xor_move *cmv = xmv;
 
-        while (cmv) {
+        while (cmv)
+        {
             nanosleep(&rpause, &repause);
 
             debug("mv_grv_proc:\n"
@@ -105,13 +106,17 @@ move_gravity_process(struct xor_move *xmv)
 
             ct_t cont = move_object_init(cmv);
 
-            if (actions[cmv->to_obj].mvini == MVI_PLAYER) {
-                if (cmv->moves_count > 0) {
+            if (actions[cmv->to_obj].mvini == MVI_PLAYER)
+            {
+                if (cmv->moves_count > 0)
+                {
                     player_death(cmv->to_obj);
                     cont = CT_PASS;
                 }
             }
-            if (cont == CT_EXPLODE) {
+
+            if (cont == CT_EXPLODE)
+            {
 
                 debug("\nBANG!!!\n");
 
@@ -129,30 +134,34 @@ move_gravity_process(struct xor_move *xmv)
                            icons[cmv->from_obj].name);
 #endif
             }
-            else if (cont == CT_PASS) {
-                map->buf[cmv->from_y][cmv->from_x] = ICON_SPACE;
+            else if (cont == CT_PASS)
+            {
+                xy_t tmpx = cmv->from_x;
+                xy_t tmpy = cmv->from_y;
+                map->buf[tmpy][tmpx] = ICON_SPACE;
                 map->buf[cmv->to_y][cmv->to_x] = cmv->from_obj;
                 game_win_move_object(cmv);
-                xy_t tmpx = cmv->from_x;
-
-                xy_t tmpy = cmv->from_y;
 
                 cmv->from_x = cmv->to_x;
                 cmv->from_y = cmv->to_y;
                 cmv->moves_count++;
-                if (cmv_next) {
+
+                if (cmv_next)
+                {
                     cmv = cmv_next;
                     if (!options->replay_hyper)
                         rpause.tv_nsec /= 1.1;
                 }
-                else {
+                else
+                {
                     if (cmv->dir == MV_DOWN)
                         cmv = create_gravity_chain_xydir(tmpx + 1, tmpy,
                                                                 MV_LEFT);
                     else
                         cmv = create_gravity_chain_xydir(tmpx, tmpy - 1,
                                                                 MV_DOWN);
-                    if (cmv) {
+                    if (cmv)
+                    {
                         xmvlist_append_xor_move(cmv);
                         if (!options->replay_hyper)
                             rpause.tv_nsec /= 1.1;

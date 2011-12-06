@@ -8,6 +8,7 @@
 #include "replay.h"
 #include "game_display.h"
 #include "help.h"
+#include "exit.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -45,6 +46,7 @@ play_xor(lvl_t level)
         xor_map_load(level);
         player_init();
         game_win_init_views();
+        game_win_wipe_out();
     }
     else
         level = replay.level;
@@ -63,24 +65,18 @@ play_xor(lvl_t level)
 
         switch (key)
         {
-        case KEY_LEFT:  case 'z':
-            move = MV_LEFT;
-            break;
-        case KEY_RIGHT: case 'x':
-            move = MV_RIGHT;
-            break;
-        case KEY_UP:    case '\'':
-            move = MV_UP;
-            break;
-        case KEY_DOWN:  case '/':
-            move = MV_DOWN;
-            break;
+        case KEY_LEFT:  case 'z':   move = MV_LEFT;     break;
+        case KEY_RIGHT: case 'x':   move = MV_RIGHT;    break;
+        case KEY_UP:    case '\'':  move = MV_UP;       break;
+        case KEY_DOWN:  case '/':   move = MV_DOWN;     break;
+
         case '\r':  case 'p':
             move = MV_PLAYER_SWAP;
             break;
+
         case 'b':
             if (!options->oldschool_play
-             && player.moves_remaining < MAX_MOVES) 
+             && player.moves_remaining < MAX_MOVES)
             {
                 replay.moves[player.moves_remaining + 1]
                     ^= MV_REPLAY_BREAK;
@@ -92,6 +88,7 @@ play_xor(lvl_t level)
                 game_win_display();
             }
             break;
+
         case '1': case '2': case '3':
             if (!options->oldschool_play)
             {
@@ -103,45 +100,53 @@ play_xor(lvl_t level)
                 game_win_display();
             }
             break;
-        case 'm':   case 'M':
-            game_win_map_display();
-            break;
-        case 'h':   case 'H':
-            help_menu();
-            game_win_display();
-            break;
-        case 'q':   case 'Q':
-            move = MV_PLAYER_QUIT;
-            break;
+
+        case 'm':   case 'M':   game_win_map_display(); break;
+        case 'h':   case 'H':   help_menu(); game_win_display(); break;
+        case 'q':   case 'Q':   move = MV_PLAYER_QUIT;  break;
+
         case KEY_RESIZE:
             screen_resize();
             break;
         }
-        if (move) {
+
+        if (move)
+        {
             state = player_move(move);
-            if (state & PLAY_RECORD) {
-                if (player.set_breakpoint) {
+
+            if (state & PLAY_RECORD)
+            {
+                if (player.set_breakpoint)
+                {
                     player.set_breakpoint = FALSE;
                     replay.moves[player.moves_remaining + 1]
                         |= MV_REPLAY_BREAK;
                 }
+
                 if (move == MV_PLAYER_QUIT)
                     replay.moves[player.moves_remaining] = move;
                 else
                     replay.moves[player.moves_remaining--] = move;
+
                 state ^= PLAY_RECORD;
             }
+
             info_win_display();
+
             if (!(player.p0_alive || player.p1_alive))
                 return FLOW_DEATH;
         }
     }
-    if (state == PLAY_COMPLETE) {
+
+    if (state == PLAY_COMPLETE)
+    {
+        player_exit_animate(&player.xmv[player.player]);
         replay.moves[player.moves_remaining] = MV_PLAYER_EXIT;
         replay.hasexit = 1;
         save_score(map->level, MAX_MOVES - player.moves_remaining);
         return FLOW_COMPLETE;
     }
+
     if (player.moves_remaining == MAX_MOVES)
         return FLOW_DO_QUIT;
 

@@ -28,16 +28,19 @@
 
 struct xor_map
 {
-    char *filename;
-    char *name;
-    struct xy view[2];          /* start coords of initial player views (file)  */
-    struct xy mappc[4];         /* coords of map piece 0 1 2 3                  */
+    char*   filename;
+    char*   name;
+
+    struct xy   player[2];  /* initial player positions */
+    struct xy   view[2];    /* initial player views */
+    struct xy   mappc[4];   /* map positions */
+    struct xy   teleport[2];/* teleport positions */
+    struct xy   tpview[2];  /* teleport exit views */
+
+    ctr_t   mask_count;
+    su_t    level;
+
     map_t *buf[MAP_H + 1];
-    struct xy player[2];        /* positions - by scanning map-data */
-    struct xy teleport[2];      /* positions, scanned               */
-    struct xy tpview[2];        /* teleport exit view coords        */
-    ctr_t mask_count;           /* scanned */
-    su_t level;                 /* user's choice */
 };
 
 extern struct xor_map *map;

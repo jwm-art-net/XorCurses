@@ -7,17 +7,22 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+
 
 xy_t _ga_w = 0;
 xy_t _ga_h = 0;
 
+
 void
-game_win_init_views()
+game_win_init_views(void)
 {
     _ga_w = screen_data->garea_w;
     _ga_h = screen_data->garea_h;
     su_t scrt = (player.replay ? 1 : options->scroll_thresh);
-    for (su_t p = 0; p < 2; p++) {
+
+    for (su_t p = 0; p < 2; p++)
+    {
         xy_t ox = map->view[p].x;
         /*  prevent void beyond right hand wall of map from displaying
            during resize. note that test condition is over-enthusiastic
@@ -26,28 +31,33 @@ game_win_init_views()
            of right side map, the garea is being shrunk, and the player
            is on the left of the view - the player pos test corrects it.
          */
-        if (ox + _ga_w >= MAP_W - 1) {
+        if (ox + _ga_w >= MAP_W - 1)
+        {
             ox -= (ox + _ga_w) - MAP_W;
             if (map->player[p].x - scrt < ox)
                 ox -= ox - (map->player[p].x - scrt);
         }
         else if (ox + _ga_w <= map->player[p].x + scrt)
             ox += (map->player[p].x + scrt + 1) - (ox + _ga_w);
+
         map->view[p].x = ox;
         xy_t oy = map->view[p].y;
-        if (oy + _ga_h >= MAP_H - 1) {
+
+        if (oy + _ga_h >= MAP_H - 1)
+        {
             oy -= oy + _ga_h - MAP_H;
             if (map->player[p].y - scrt < oy)
                 oy -= oy - (map->player[p].y - scrt);
         }
         else if (oy + _ga_h <= map->player[p].y + scrt)
             oy += (map->player[p].y + scrt + 1) - (oy + _ga_h);
+
         map->view[p].y = oy;
     }
 }
 
 void
-game_win_display()
+game_win_display(void)
 {
     if (_ga_w != screen_data->garea_w || _ga_h != screen_data->garea_h)
         game_win_init_views();
@@ -79,7 +89,7 @@ game_win_show(xy_t tlx, xy_t tly)
 }
 
 void
-game_win_swap_update()
+game_win_swap_update(void)
 {
     su_t p = (player.player) ? 0 : 1;
 
@@ -99,16 +109,14 @@ void
 game_win_move_player(struct xor_move *pmv)
 {
     xy_t vx = map->view[player.player].x;
-
     xy_t vy = map->view[player.player].y;
-
     xy_t ovx = vx;
-
     xy_t ovy = vy;
 
     su_t scrt = (player.replay ? 1 : options->scroll_thresh);
 
-    switch (pmv->dir) {
+    switch (pmv->dir)
+    {
     case MV_LEFT:
         if (pmv->to_x < vx + scrt && vx > 0)
             vx--;
@@ -128,14 +136,18 @@ game_win_move_player(struct xor_move *pmv)
     default:
         break;
     }
-    if (ovx != vx || ovy != vy) {
+
+    if (ovx != vx || ovy != vy)
+    {
         map->view[player.player].x = vx;
         map->view[player.player].y = vy;
-        game_win_display(map);
+        game_win_display();
         return;
     }
+
     game_win_icon_display(pmv->from_x, pmv->from_y, ICON_SPACE);
     game_win_icon_display(pmv->to_x, pmv->to_y, pmv->from_obj);
+
     wrefresh(game_win);
 }
 
@@ -156,7 +168,9 @@ game_win_map_coord(xy_t x, xy_t y)
         return 0;
     struct xy *pv = &map->view[player.player];
 
-    if (x >= pv->x && x < pv->x + _ga_w && y >= pv->y && y < pv->y + _ga_h) {
+    if (x >= pv->x && x < pv->x + _ga_w
+     && y >= pv->y && y < pv->y + _ga_h)
+    {
         ret->x = (x - pv->x) * ICON_W;
         ret->y = (y - pv->y) * ICON_H;
         return ret;
@@ -169,13 +183,15 @@ void
 game_win_icon_display(xy_t x, xy_t y, su_t icon)
 {
     xy_t vx = map->view[player.player].x;
-
     xy_t vy = map->view[player.player].y;
 
-    if (x < vx || x >= vx + _ga_w || y < vy || y >= vy + _ga_h)
+    if (x < vx || x >= vx + _ga_w
+     || y < vy || y >= vy + _ga_h)
+    {
         return;
-    xy_t wx = (x - vx) * ICON_W;
+    }
 
+    xy_t wx = (x - vx) * ICON_W;
     xy_t wy = (y - vy) * ICON_H;
 
     wattrset(game_win, COLOR_PAIR(icon));
@@ -257,12 +273,14 @@ game_win_dump_map_sect(xy_t topy, su_t sect, bool show)
                 switch (icon) {
                 case ICON_WALL:
                     wattrset(game_win, COLOR_PAIR(COL_I_MAP_WALL));
-                    mvwaddch(game_win, oy + sy, ox + x, icon_to_mapchar(icon));
+                    mvwaddch(game_win, oy + sy, ox + x,
+                                                icon_to_mapchar(icon));
                     break;
                 case ICON_MASK:
                 case ICON_EXIT:
                     wattrset(game_win, COLOR_PAIR(icon));
-                    mvwaddch(game_win, oy + sy, ox + x, icon_to_mapchar(icon));
+                    mvwaddch(game_win, oy + sy, ox + x,
+                                                icon_to_mapchar(icon));
                     break;
                 default:
                     wattrset(game_win, COLOR_PAIR(ICON_SPACE));
@@ -289,7 +307,7 @@ game_win_dump_map(xy_t topy)
 }
 
 void
-game_win_map_display()
+game_win_map_display(void)
 {
     bool map_scrollable =
         (screen_data->garea_h * ICON_H < MAP_H ? TRUE : FALSE);
@@ -330,11 +348,82 @@ game_win_map_display()
             case 'M':
             case 'q':
             case 'Q':
-                game_win_display(y);
+                game_win_display();
                 player.map_view_y = y;
                 return;
             }
         }
     }
 }
+
+void game_win_wipe_out(void)
+{
+    struct timespec rpause;
+    struct timespec repause;
+
+    xy_t r1x = 0;
+    xy_t r2x = _ga_w * ICON_W - 1;
+    xy_t r1y = 0;
+    xy_t r2y = _ga_h * ICON_H - 1;
+
+    rpause.tv_sec = 0;
+    rpause.tv_nsec = 0;
+
+    if (player.replay)
+    {
+        if (!options->replay_hyper)
+            rpause.tv_nsec =
+                options_replay_speed(options->replay_speed) / 100;
+    }
+    else
+        rpause.tv_nsec = 250000L;
+
+    int cp = ICON_SPACE;
+
+    do
+    {
+        xy_t x, y;
+
+        wattrset(game_win, COLOR_PAIR(cp));
+
+        for (x = r1x; x < r2x; ++x)
+        {
+            mvwaddch(game_win, r1y, x, '-');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        for (y = r1y; y < r2y; ++y)
+        {
+            mvwaddch(game_win, y, r2x, '|');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        for (x = r2x; x > r1x; --x)
+        {
+            mvwaddch(game_win, r2y, x, '-');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        for (y = r2y; y > r1y; --y)
+        {
+            mvwaddch(game_win, y, r1x, '|');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        r1x++;
+        r1y++;
+        r2x--;
+        r2y--;
+
+        cp = (cp + 1) % ICON_XXX;
+
+    } while(r1x <= r2x && r1y <= r2y);
+
+    wrefresh(game_win);
+}
+
 

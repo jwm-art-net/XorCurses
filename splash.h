@@ -15,6 +15,14 @@
 #ifndef _SPLASH_H
 #define _SPLASH_H
 
+
+#include "types.h"
+
+
 void splash();
+
+void splash_mask(xy_t offx, xy_t offy, int randcol);
+
+void splatter_masks(void);
 
 #endif

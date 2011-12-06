@@ -1,5 +1,6 @@
 #include "icons.h"
 
+
 struct xor_icon icons[ICON_XXX] = {
     {
      COLOR_BLACK,
@@ -174,6 +175,7 @@ struct xor_icon icons[ICON_XXX] = {
      "Explosion3"}
 };
 
+
 struct xor_icon wall_icons[4] = {
     {
      COLOR_RED,
@@ -213,15 +215,15 @@ struct xor_icon wall_icons[4] = {
      "Wall4"}
 };
 
-void
-init_icons(void)
+
+void init_icons(void)
 {
     for (su_t i = 1; i < ICON_XXX; i++)
         init_pair(i, icons[i].fg, icons[i].bg);
 }
 
-void
-init_wall(lvl_t level, bool show)
+
+void init_wall(lvl_t level, bool show)
 {
     NCURSES_COLOR_T bg[6] = {
         COLOR_RED,
@@ -250,8 +252,8 @@ init_wall(lvl_t level, bool show)
                 (show) ? wall_icons[wall].chrs[y][x] : ' ';
 }
 
-void
-win_icon_dump(WINDOW * win, xy_t x, xy_t y, su_t icon)
+
+void win_icon_dump(WINDOW * win, xy_t x, xy_t y, su_t icon)
 {
     wattrset(win, COLOR_PAIR(icon));
     for (xy_t yy = 0; yy < ICON_H; yy++)
@@ -259,8 +261,8 @@ win_icon_dump(WINDOW * win, xy_t x, xy_t y, su_t icon)
             mvwaddch(win, y + yy, x + xx, icons[icon].chrs[yy][xx]);
 }
 
-su_t
-mapchar_to_icon(char c)
+
+su_t mapchar_to_icon(char c)
 {
     switch (c) {
     case ' ':
@@ -299,8 +301,8 @@ mapchar_to_icon(char c)
     return ICON_SPACE;
 }
 
-char
-icon_to_mapchar(su_t icon)
+
+char icon_to_mapchar(su_t icon)
 {
     switch (icon) {
     case ICON_SPACE:
@@ -338,3 +340,4 @@ icon_to_mapchar(su_t icon)
     }
     return 0;
 }
+

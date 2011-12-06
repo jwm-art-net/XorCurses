@@ -18,13 +18,13 @@
 #include "types.h"
 #include "actions.h"
 
-void game_win_init_views();
+void game_win_init_views(void);
 
-void game_win_display();
+void game_win_display(void);
 
 void game_win_show(xy_t tlx, xy_t tly);
 
-void game_win_swap_update();
+void game_win_swap_update(void);
 
 void game_win_move_player(struct xor_move *xmv);
 
@@ -48,6 +48,8 @@ void game_win_icon_dump(xy_t x, xy_t y, su_t icon);
 */
 void game_win_icon_display(xy_t x, xy_t y, su_t icon);
 
-void game_win_map_display();
+void game_win_map_display(void);
+
+void game_win_wipe_out(void);
 
 #endif
