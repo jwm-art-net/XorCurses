@@ -171,3 +171,150 @@ void splatter_masks(void)
 
 }
 
+
+void splash_wipe_anim(int dir)
+{
+    struct timespec rpause;
+    struct timespec repause;
+    int i;
+
+    const int count = 15;
+    const int ccount = ICON_XXX;
+    rpause.tv_sec = 0;
+    rpause.tv_nsec = 0;
+
+    if (player.replay)
+    {
+        if (!options->replay_hyper)
+            rpause.tv_nsec =
+                options_replay_speed(options->replay_speed);
+    }
+    else
+        rpause.tv_nsec = 500000000L;
+
+    for (i = 0; i < count; ++i)
+    {
+        int tmp = (screen_data->garea_w * ICON_W) / 2;
+        int r1x = tmp - i % 2;
+        int r2x = tmp + i % 2;
+                        /*screen_data->garea_w * ICON_W - 1;*/
+
+        int r1y = (screen_data->garea_h * ICON_H) / 2;
+        int r2y = r1y;
+                        /*screen_data->garea_h * ICON_H - 1;*/
+
+        int cp = (dir > 0) ? i % ccount : (count - i) % ccount;
+
+        wattrset(game_win, COLOR_PAIR(cp));
+        mvwaddch(game_win, r1y, r1x, ' ');
+
+        do
+        {
+            xy_t x, y;
+
+            r1x -= 2;
+            r1y--;
+            r2x += 2;
+            r2y++;
+
+            wattrset(game_win, COLOR_PAIR(cp));
+
+            for (x = r1x; x <= r2x; ++x)
+            {
+                mvwaddch(game_win, r1y, x, ' ');
+                mvwaddch(game_win, r2y, x, ' ');
+            }
+
+            for (y = r1y; y <= r2y; ++y)
+            {
+                mvwaddch(game_win, y, r1x, ' ');
+                mvwaddch(game_win, y, r2x, ' ');
+                mvwaddch(game_win, y, r1x-1, ' ');
+                mvwaddch(game_win, y, r2x+1, ' ');
+            }
+
+            cp = (cp + dir) % ccount;
+
+        } while(r1x > 0 || r1y > 0);
+
+        wrefresh(game_win);
+        nanosleep(&rpause, &repause);
+
+    }
+
+}
+
+
+void splash_wipe_out(void)
+{
+    struct timespec rpause;
+    struct timespec repause;
+
+    xy_t r1x = 0;
+    xy_t r2x = screen_data->garea_w * ICON_W - 1;
+    xy_t r1y = 0;
+    xy_t r2y = screen_data->garea_h * ICON_H - 1;
+
+    rpause.tv_sec = 0;
+    rpause.tv_nsec = 0;
+
+    if (player.replay)
+    {
+        if (!options->replay_hyper)
+            rpause.tv_nsec =
+                options_replay_speed(options->replay_speed) / 100;
+    }
+    else
+        rpause.tv_nsec = 250000L;
+
+    int cp = ICON_SPACE;
+
+    do
+    {
+        xy_t x, y;
+
+        wattrset(game_win, COLOR_PAIR(cp));
+
+        for (x = r1x; x < r2x; ++x)
+        {
+            mvwaddch(game_win, r1y, x, '-');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        for (y = r1y; y < r2y; ++y)
+        {
+            mvwaddch(game_win, y, r2x, '|');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        for (x = r2x; x > r1x; --x)
+        {
+            mvwaddch(game_win, r2y, x, '-');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        for (y = r2y; y > r1y; --y)
+        {
+            mvwaddch(game_win, y, r1x, '|');
+            wrefresh(game_win);
+            nanosleep(&rpause, &repause);
+        }
+
+        r1x++;
+        r1y++;
+        r2x--;
+        r2y--;
+
+        cp = (cp + 1) % ICON_XXX;
+
+    } while(r1x <= r2x && r1y <= r2y);
+
+    wrefresh(game_win);
+}
+
+
+
+

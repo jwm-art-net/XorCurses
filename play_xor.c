@@ -46,7 +46,7 @@ play_xor(lvl_t level)
         xor_map_load(level);
         player_init();
         game_win_init_views();
-        game_win_wipe_out();
+        splash_wipe_anim(1);
     }
     else
         level = replay.level;

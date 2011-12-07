@@ -25,4 +25,10 @@ void splash_mask(xy_t offx, xy_t offy, int randcol);
 
 void splatter_masks(void);
 
+
+void splash_wipe_out(void);
+
+void splash_wipe_anim(int dir); /* 1 fwd -1 back */
+
+
 #endif

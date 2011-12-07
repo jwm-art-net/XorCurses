@@ -50,6 +50,5 @@ void game_win_icon_display(xy_t x, xy_t y, su_t icon);
 
 void game_win_map_display(void);
 
-void game_win_wipe_out(void);
 
 #endif

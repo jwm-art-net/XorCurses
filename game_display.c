@@ -10,8 +10,8 @@
 #include <time.h>
 
 
-xy_t _ga_w = 0;
-xy_t _ga_h = 0;
+static xy_t _ga_w = 0;
+static xy_t _ga_h = 0;
 
 
 void
@@ -354,76 +354,6 @@ game_win_map_display(void)
             }
         }
     }
-}
-
-void game_win_wipe_out(void)
-{
-    struct timespec rpause;
-    struct timespec repause;
-
-    xy_t r1x = 0;
-    xy_t r2x = _ga_w * ICON_W - 1;
-    xy_t r1y = 0;
-    xy_t r2y = _ga_h * ICON_H - 1;
-
-    rpause.tv_sec = 0;
-    rpause.tv_nsec = 0;
-
-    if (player.replay)
-    {
-        if (!options->replay_hyper)
-            rpause.tv_nsec =
-                options_replay_speed(options->replay_speed) / 100;
-    }
-    else
-        rpause.tv_nsec = 250000L;
-
-    int cp = ICON_SPACE;
-
-    do
-    {
-        xy_t x, y;
-
-        wattrset(game_win, COLOR_PAIR(cp));
-
-        for (x = r1x; x < r2x; ++x)
-        {
-            mvwaddch(game_win, r1y, x, '-');
-            wrefresh(game_win);
-            nanosleep(&rpause, &repause);
-        }
-
-        for (y = r1y; y < r2y; ++y)
-        {
-            mvwaddch(game_win, y, r2x, '|');
-            wrefresh(game_win);
-            nanosleep(&rpause, &repause);
-        }
-
-        for (x = r2x; x > r1x; --x)
-        {
-            mvwaddch(game_win, r2y, x, '-');
-            wrefresh(game_win);
-            nanosleep(&rpause, &repause);
-        }
-
-        for (y = r2y; y > r1y; --y)
-        {
-            mvwaddch(game_win, y, r1x, '|');
-            wrefresh(game_win);
-            nanosleep(&rpause, &repause);
-        }
-
-        r1x++;
-        r1y++;
-        r2x--;
-        r2y--;
-
-        cp = (cp + 1) % ICON_XXX;
-
-    } while(r1x <= r2x && r1y <= r2y);
-
-    wrefresh(game_win);
 }
 
 

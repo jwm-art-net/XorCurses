@@ -9,6 +9,7 @@
 #include "debug.h"
 #include "fletcher.h"
 #include "exit.h"
+#include "splash.h"
 
 
 #include <string.h>
@@ -239,7 +240,7 @@ int replay_xor(int flow)
         player.replay = TRUE;
         init_wall(replay.level, TRUE);
         game_win_init_views();
-        game_win_wipe_out();
+        splash_wipe_anim(1);
     }
     game_win_display();
     info_win_update_map(player.have_map);
