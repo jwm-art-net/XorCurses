@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "player.h"
 #include "options.h"
+#include "debug.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -172,14 +173,18 @@ void splatter_masks(void)
 }
 
 
-void splash_wipe_anim(int dir)
+void splash_level_entry(lvl_t level)
 {
     struct timespec rpause;
     struct timespec repause;
+    const int count = 15; /* iterations */
+    const int cpoff = 9 + (level / 3) % 5; /* ICON_* colour pair offset */
+    const int ccount = (level < 12) ? 6 : 5; /* #colour bands */
+    const int maxx = getmaxx(game_win);
+    const int maxy = getmaxy(game_win);
+    const int c = ' ';
     int i;
 
-    const int count = 15;
-    const int ccount = ICON_XXX;
     rpause.tv_sec = 0;
     rpause.tv_nsec = 0;
 
@@ -190,58 +195,54 @@ void splash_wipe_anim(int dir)
                 options_replay_speed(options->replay_speed);
     }
     else
-        rpause.tv_nsec = 500000000L;
+        rpause.tv_nsec = 50000000L;
 
     for (i = 0; i < count; ++i)
     {
-        int tmp = (screen_data->garea_w * ICON_W) / 2;
+        int tmp = maxx / 2;
         int r1x = tmp - i % 2;
         int r2x = tmp + i % 2;
-                        /*screen_data->garea_w * ICON_W - 1;*/
-
-        int r1y = (screen_data->garea_h * ICON_H) / 2;
+        int r1y = maxy / 2;
         int r2y = r1y;
-                        /*screen_data->garea_h * ICON_H - 1;*/
+        int cp;
 
-        int cp = (dir > 0) ? i % ccount : (count - i) % ccount;
+        cp = (ccount * 100 - i) % ccount;
 
-        wattrset(game_win, COLOR_PAIR(cp));
-        mvwaddch(game_win, r1y, r1x, ' ');
+        wattrset(game_win, COLOR_PAIR(cpoff + cp));
+
+        for (tmp = 0; tmp <= r2x - r1x; ++tmp)
+            mvwaddch(game_win, r1y, r1x + tmp, c);
 
         do
         {
-            xy_t x, y;
+            int x, y;
 
+            cp = (cp + 1) % ccount;
+            wattrset(game_win, COLOR_PAIR(cpoff + cp));
             r1x -= 2;
-            r1y--;
             r2x += 2;
+            r1y--;
             r2y++;
-
-            wattrset(game_win, COLOR_PAIR(cp));
 
             for (x = r1x; x <= r2x; ++x)
             {
-                mvwaddch(game_win, r1y, x, ' ');
-                mvwaddch(game_win, r2y, x, ' ');
+                mvwaddch(game_win, r1y, x, c);
+                mvwaddch(game_win, r2y, x, c);
             }
 
             for (y = r1y; y <= r2y; ++y)
             {
-                mvwaddch(game_win, y, r1x, ' ');
-                mvwaddch(game_win, y, r2x, ' ');
-                mvwaddch(game_win, y, r1x-1, ' ');
-                mvwaddch(game_win, y, r2x+1, ' ');
+                mvwaddch(game_win, y, r1x, c);
+                mvwaddch(game_win, y, r1x+1, c);
+                mvwaddch(game_win, y, r2x, c);
+                mvwaddch(game_win, y, r2x-1, c);
             }
-
-            cp = (cp + dir) % ccount;
 
         } while(r1x > 0 || r1y > 0);
 
         wrefresh(game_win);
         nanosleep(&rpause, &repause);
-
     }
-
 }
 
 

@@ -2,6 +2,7 @@
 #include "play_xor.h"
 #include "replay.h"
 #include <stdlib.h>
+#include "splash.h"
 
 #include "debug.h"
 
@@ -19,6 +20,7 @@ void control_flow(int level)
                 return;
             }
 
+            splash_level_entry(level);
             flow = replay_xor(level | FLOW_START);
         }
         else

@@ -9,6 +9,8 @@
 #include "game_display.h"
 #include "help.h"
 #include "exit.h"
+#include "splash.h"
+#include "debug.h"
 
 #include <stdlib.h>
 #include <time.h>
@@ -46,7 +48,7 @@ play_xor(lvl_t level)
         xor_map_load(level);
         player_init();
         game_win_init_views();
-        splash_wipe_anim(1);
+        splash_level_entry(level);
     }
     else
         level = replay.level;
@@ -57,6 +59,7 @@ play_xor(lvl_t level)
     screen_data->info_win_repaint_cb = &info_win_repaint;
     info_win_display();
     int state = PLAY_CONTINUE;
+    debug("scr w:%d scr h:%d\n",screen_data->garea_w,screen_data->garea_h);
 
     while (state == PLAY_CONTINUE || state == PLAY_PROCESS_MOVE)
     {

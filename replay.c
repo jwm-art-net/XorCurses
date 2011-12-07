@@ -240,7 +240,6 @@ int replay_xor(int flow)
         player.replay = TRUE;
         init_wall(replay.level, TRUE);
         game_win_init_views();
-        splash_wipe_anim(1);
     }
     game_win_display();
     info_win_update_map(player.have_map);

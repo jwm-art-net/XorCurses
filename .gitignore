@@ -1,5 +1,6 @@
 *.o
 xorcurses
 *.bz2
+*.xcr
 
 

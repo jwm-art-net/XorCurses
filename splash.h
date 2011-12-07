@@ -28,7 +28,7 @@ void splatter_masks(void);
 
 void splash_wipe_out(void);
 
-void splash_wipe_anim(int dir); /* 1 fwd -1 back */
+void splash_level_entry(lvl_t level);
 
 
 #endif
