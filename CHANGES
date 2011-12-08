@@ -1,5 +1,11 @@
 -----------------------------------------------
-0.1.4
+0.2.0
+
+* revision bump from 0.1.3 to 0.2.0
+
+* map display bugs fixed - finally.
+
+* level entry and level complete exit animations.
 
 * scores and replays no longer saved in binary
   format. binary dot files in a user home dir don't
