@@ -178,9 +178,8 @@ void player_process_collect(struct xor_move *pmv)
     {
     case ICON_MASK:
         player.masks_collected++;
+        map->buf[pmv->to_y]  [pmv->to_x] = ICON_SPACE;
         info_win_map_erase_mask(pmv->to_x, pmv->to_y);
-        if ((player.masks_collected % 4) == 0)
-            info_win_update_map(player.have_map);
         break;
 
     case ICON_MAP:
@@ -217,7 +216,7 @@ static enum PLAY_STATE player_process_push(struct xor_move* pmv)
     game_win_icon_display(omv->from_x, omv->from_y, ICON_SPACE);
     game_win_icon_display(omv->to_x,   omv->to_y,   omv->from_obj);
 
-/*game_win_display();*/
+    /*game_win_display();*/
 
     game_win_move_player(pmv);
     omv->from_x = omv->to_x;
@@ -256,20 +255,25 @@ void player_death(su_t icon)
     game_win_display();
 }
 
-void
-player_process_map_pc(struct xor_move *pmv)
+
+void player_process_map_pc(struct xor_move *pmv)
 {
     su_t i;
 
     su_t mb = 1;
 
-    for (i = 0; i < 4; i++, mb *= 2) {
-        if (pmv->to_x == map->mappc[i].x && pmv->to_y == map->mappc[i].y) {
+    for (i = 0; i < 4; i++, mb *= 2)
+    {
+        if (pmv->to_x == map->mappc[i].x && pmv->to_y == map->mappc[i].y)
+        {
+            debug("collected map piece ix:%d id:%d\n", i, mb);
             player.have_map |= mb;
+            debug("player.have_map:%d\n", player.have_map);
             info_win_dump_map(i);
         }
     }
 }
+
 
 #if DEBUG
 

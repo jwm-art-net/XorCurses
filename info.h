@@ -23,6 +23,7 @@ void info_win_update_player_icon();
 
 void info_win_update_map(su_t have_map);
 
+/* here, map pieces are numberd 0 - 3 clockwise from top-right */
 void info_win_dump_map(su_t mappc);
 
 void info_win_map_erase_mask(xy_t x, xy_t y);

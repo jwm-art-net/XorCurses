@@ -7,61 +7,88 @@
 
 #include <string.h>
 
-void
-info_win_update_player_icon()
+void info_win_update_player_icon()
 {
     win_icon_dump(info_win, 2, 2, ICON_PLAYER0 + player.player);
 }
 
-bool
-map_overwrite_bad(xy_t x, xy_t y)
+
+void info_win_update_map(su_t have_map)
 {
-    xy_t xx = (x % 2) ? x - 1 : x;
-
-    xy_t yy = (y % 2) ? y - 1 : y;
-
-    if (x % 2) {
-        if (map->buf[y][xx] == ICON_MASK)
-            return TRUE;
-    }
-    else if (x < MAP_W - 1) {
-        if (map->buf[y][x + 1] == ICON_MASK)
-            return TRUE;
-    }
-    if (y % 2) {
-        if (map->buf[yy][x] == ICON_MASK)
-            return TRUE;
-    }
-    else if (y < MAP_H - 1) {
-        if (map->buf[y + 1][x] == ICON_MASK)
-            return TRUE;
-    }
-    if (x % 2 && y % 2) {
-        if (map->buf[yy][xx] == ICON_MASK)
-            return TRUE;
-    }
-    else if (x < MAP_W - 1 && y < MAP_H - 1) {
-        if (map->buf[y + 1][x + 1] == ICON_MASK)
-            return TRUE;
-    }
-    return FALSE;
-}
-
-void
-info_win_update_map(su_t have_map)
-{
-    for (su_t i = 0, mb = 1; i < 4; i++, mb *= 2) {
+    for (su_t i = 0, mb = 1; i < 4; i++, mb *= 2)
+    {
         if (mb & have_map)
             info_win_dump_map(i);
     }
+
+    wrefresh(info_win);
 }
 
-void
-info_win_dump_map(su_t mappc)
+
+static void scale_dump_map(xy_t qx, xy_t qy)
+{
+    xy_t lx = qx + HMAP_W;
+    xy_t ly = qy + HMAP_H;
+
+    struct xy m[] = { {0, 0}, {1, 0}, {0, 1}, {1, 1} };
+
+    for (xy_t x = qx; x < lx; x += 2)
+    {
+        for (xy_t y = qy; y < ly; y += 2)
+        {
+            su_t icon = 0;
+            su_t i;
+
+            for (i = 0; i < 4; ++i)
+            {
+                su_t t = map->buf[y + m[i].y][x + m[i].x];
+
+                if (t == ICON_EXIT)
+                {
+                    icon = t;
+                    break;
+                }
+                else if (t == ICON_MASK)
+                    icon = t;
+                else if (t == ICON_WALL && icon == 0)
+                    icon = t;
+            }
+
+            switch (icon)
+            {
+            case ICON_WALL:
+                wattrset(info_win, COLOR_PAIR(COL_I_MAP_WALL));
+                mvwaddch(info_win,
+                         screen_data->map_tly + y / 2,
+                         screen_data->map_tlx + x / 2,
+                                                icon_to_mapchar(icon));
+                break;
+
+            case ICON_MASK:
+            case ICON_EXIT:
+                wattrset(info_win, COLOR_PAIR(icon));
+                mvwaddch(info_win,
+                         screen_data->map_tly + y / 2,
+                         screen_data->map_tlx + x / 2,
+                                                icon_to_mapchar(icon));
+                break;
+
+            default:
+                break;
+            }
+        }
+    }
+}
+
+
+/* here, map pieces are numberd 0 - 3 clockwise from top-right */
+void info_win_dump_map(su_t mappc)
 {
     xy_t x = 0;
     xy_t y = 0;
-    switch (mappc) {
+
+    switch (mappc)
+    {
     case 0:
         x = HMAP_W;
         break;
@@ -73,31 +100,40 @@ info_win_dump_map(su_t mappc)
         y = HMAP_H;
         break;
     }
-    xy_t d = (screen_data->scale_map == TRUE ? 2 : 1);
+
+    if (screen_data->scale_map)
+    {
+        scale_dump_map(x, y);
+        return;
+    }
+
     xy_t lx = x + HMAP_W;
     xy_t ly = y + HMAP_H;
-    for (xy_t xx = x; xx < lx; xx++) {
-        for (xy_t yy = y; yy < ly; yy++) {
+
+    for (xy_t xx = x; xx < lx; xx++)
+    {
+        for (xy_t yy = y; yy < ly; yy++)
+        {
             su_t icon = map->buf[yy][xx];
-            switch (icon) {
+            switch (icon)
+            {
             case ICON_WALL:
-                if (screen_data->scale_map == TRUE)
-                    if (map_overwrite_bad(xx, yy))
-                        break;
                 wattrset(info_win, COLOR_PAIR(COL_I_MAP_WALL));
                 mvwaddch(info_win,
-                         screen_data->map_tly + yy / d,
-                         screen_data->map_tlx + xx / d,
+                         screen_data->map_tly + yy,
+                         screen_data->map_tlx + xx,
                                         icon_to_mapchar(icon));
                 break;
+
             case ICON_MASK:
             case ICON_EXIT:
                 wattrset(info_win, COLOR_PAIR(icon));
                 mvwaddch(info_win,
-                         screen_data->map_tly + yy / d,
-                         screen_data->map_tlx + xx / d,
+                         screen_data->map_tly + yy,
+                         screen_data->map_tlx + xx,
                                         icon_to_mapchar(icon));
                 break;
+
             default:
                 break;
             }
@@ -105,25 +141,64 @@ info_win_dump_map(su_t mappc)
     }
 }
 
-void
-info_win_map_erase_mask(xy_t x, xy_t y)
+
+static void scale_map_erase_mask(xy_t x, xy_t y)
 {
-    wattrset(info_win, COLOR_PAIR(ICON_SPACE));
-    if (!screen_data->scale_map) {
-        mvwaddch(info_win,
-                 screen_data->map_tly + y, screen_data->map_tlx + x,
-                 icon_to_mapchar(ICON_SPACE));
+    struct xy m[] = { {0, 0}, {1, 0}, {0, 1}, {1, 1} };
+    su_t mappc;
+    su_t icon = 0;
+    su_t i;
+
+    if (y < HMAP_H)
+        mappc = (x < HMAP_W) ? 8 : 1;
+    else
+        mappc = (x < HMAP_W) ? 4 : 2;
+
+    if (!(player.have_map & mappc))
         return;
+
+    x = x - (x % 2);
+    y = y - (y % 2);
+
+    for (i = 0; i < 4; ++i)
+    {
+        su_t t = map->buf[y + m[i].y][x + m[i].x];
+
+        if (t == ICON_EXIT)
+        {
+            icon = t;
+            break;
+        }
+        else if (t == ICON_MASK)
+            icon = t;
+        else if (t == ICON_WALL && icon == 0)
+            icon = t;
     }
-    if (map_overwrite_bad(x, y))
-        return;
-    mvwaddch(info_win,
-             screen_data->map_tly + y / 2,
-             screen_data->map_tlx + x / 2, icon_to_mapchar(ICON_SPACE));
+
+    wattrset(info_win,
+            COLOR_PAIR(icon == ICON_WALL ? COL_I_MAP_WALL : icon));
+    mvwaddch(info_win,  screen_data->map_tly + y / 2,
+                        screen_data->map_tlx + x / 2,
+                        icon_to_mapchar(icon));
 }
 
-void
-info_win_display()
+
+void info_win_map_erase_mask(xy_t x, xy_t y)
+{
+    if (screen_data->scale_map)
+    {
+        scale_map_erase_mask(x, y);
+        return;
+    }
+
+    wattrset(info_win, COLOR_PAIR(ICON_SPACE));
+    mvwaddch(info_win,  screen_data->map_tly + y,
+                        screen_data->map_tlx + x,
+                        icon_to_mapchar(ICON_SPACE));
+}
+
+
+void info_win_display()
 {
     wattrset(info_win, COLOR_PAIR(COL_I_TXT));
     mvwprintw(info_win,

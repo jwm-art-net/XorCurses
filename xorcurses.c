@@ -41,6 +41,7 @@ main(void)
         ret = 1;
         goto bail;
     }
+
     create_scores();
     load_scores();
     init_icons();

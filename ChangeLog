@@ -1,3 +1,25 @@
+2011-12-08 James Morris <james@jwm-art.net>
+
+	* exit.[ch]: new files, implements exit animation of player
+	  passing through the exit door (ie player slides into it).
+
+	* info.[ch]: overhaul of map display code. removal of
+	  map_overwrite_bad func. half-scale map display code now
+	  has an order of precedence for displaying objects in the
+	  map: exit, mask, wall, space, which is also useful for
+	  erasing a collected mask from map. full-scale map display
+	  code has been fixed to erase masks correctly.
+
+	* player.c: remove call to info_win_update_map for every 4th
+	  mask collected.
+
+	* splash.c: big mask drawing moved to own function. addition
+	  of splatter_masks function (may be removed). moving colour
+	  bars animation for entry into a level.q
+
+	* other stuff i can't be bothered to document right now.
+	
+
 2011-12-04 James Morris <james@jwm-art.net>
 
 	* fletcher.[ch]: new file implementing fletcher16 checksum
