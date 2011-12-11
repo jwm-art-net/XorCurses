@@ -44,8 +44,15 @@ play_xor(lvl_t level)
             replay.moves[mv] = 0;
 
         init_wall(level, TRUE);
-        xor_map_create();
-        xor_map_load(level);
+
+        if (!xor_map_create()
+         || !xor_map_load(level))
+        {
+            scr_wmsg(game_win, "Failed to load map!", 0, 0);
+            wgetch(game_win);
+            return FLOW_DO_QUIT;
+        }
+
         player_init();
         game_win_init_views();
         splash_level_entry(level);

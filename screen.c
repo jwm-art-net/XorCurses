@@ -22,23 +22,38 @@ static float info_w_ratio = MIN_INFO_W / (float) MIN_W;
 su_t
 screen_create()
 {
+    debug("creating screen...\n");
+
     initscr();
-    if (has_colors() == FALSE) {
+
+    if (has_colors() == FALSE)
+    {
         endwin();
         err_msg("Your terminal does not support color\n");
         return 0;
     }
+
     noecho();
     nonl();
     cbreak();
     nodelay(game_win, FALSE);
     start_color();
     curs_set(0);
+
     if (screen_data)
+    {
+        debug("warning: screen_data already exists!\n");
         screen_destroy();
+    }
+
     screen_data = malloc(sizeof(struct xor_screen));
+
     if (!screen_data)
+    {
+        debug("failed to allocate screen data\n");
         return 0;
+    }
+
     memset(screen_data, 0, sizeof(struct xor_screen));
     /*                              fg              bg          */
     init_pair(COL_G_TXT,            COLOR_BLACK,    COLOR_YELLOW);
@@ -54,12 +69,15 @@ screen_create()
     init_pair(COL_SPLASH_TITLE,     COLOR_WHITE,    COLOR_RED);
     init_pair(COL_SPLASH_MASK,      COLOR_BLUE,     COLOR_BLACK);
     init_pair(COL_SPLASH_MASK_SOLID,COLOR_BLUE,     COLOR_BLUE);
+
     return 1;
 }
 
 void
 screen_destroy()
 {
+    debug("destroying screen...\n");
+
     if (screen_data) {
         free(screen_data);
         screen_data = 0;
@@ -80,6 +98,8 @@ screen_destroy()
 su_t
 screen_size()
 {
+    debug("pasting rabbit-skin-glue to screen...\n");
+
     int maxx = getmaxx(stdscr);
     int maxy = getmaxy(stdscr);
     if (maxx < MIN_W || maxy < 24)
@@ -216,6 +236,8 @@ screen_size()
 su_t
 screen_resize()
 {
+    debug("resizing screen...\n");
+
     if (!screen_size()) {
         char warn[] = "** TOO SMALL **";
         char wc[2] = " ";

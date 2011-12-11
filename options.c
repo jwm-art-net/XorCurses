@@ -18,6 +18,8 @@ struct xor_options *options = 0;
 su_t
 options_create()
 {
+    debug("creating options...\n");
+
     if (!(options = malloc(sizeof(struct xor_options)))) {
         err_msg("Memory allocation error!\n");
         exit(1);
@@ -84,9 +86,14 @@ options_set_dir_opt(enum DATA_LOC loc)
 su_t
 options_create_map_names()
 {
+    debug("creating map names...\n");
+
     for (su_t i = MIN_LEVEL; i <= MAX_LEVEL; i++)
-        if (!(map_name[i] = xor_map_load_read_name(i)))
+        if (!(map_name[i] = xor_map_load_read_name(i, 0)))
+        {
+            debug("failed to read map name %d\n", i);
             return 0;
+        }
     return 1;
 }
 
@@ -123,17 +130,17 @@ options_map_filename(su_t level)
         return 0;
     char *dir = options->map_dir;
 
-    su_t l = strlen(dir);
-
-    l += ((level < 10 ? 5 : 6) + 1);
+    su_t l = strlen(dir) + 7; /* strlen("01.xcm") */
     char *fname = malloc(l);
 
     if (!fname)
         return 0;
-    if (snprintf(fname, l, "%s%d.txt", dir, level) != l - 1) {
+
+    if (snprintf(fname, l, "%s%02d.xcm", dir, level) != l - 1) {
         free(fname);
         return 0;
     }
+
     return fname;
 }
 

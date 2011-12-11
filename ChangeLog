@@ -1,3 +1,13 @@
+2011-12-09 James Morris <james@jwm-art.net>
+
+	* scores.c: set scores for each level with corresponding
+	  score read from file! (a simple oversight from a few
+	  days ago when re-writing the scores file IO).
+
+	* map.[ch], play_xor.c, replay.c: a more graceful handling
+	  of failure to create/read maps.
+
+
 2011-12-08 James Morris <james@jwm-art.net>
 
 	* exit.[ch]: new files, implements exit animation of player
@@ -44,6 +54,7 @@
 
 	* scores.[ch]: scores file no longer consists of binary data.
 	  use of fletcher16 to discourage tampering.
+
 
 2011-11-28 James Morris <james@jwm-art.net>
 

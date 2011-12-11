@@ -68,8 +68,5 @@ void init_wall(lvl_t level, bool show);
 
 void win_icon_dump(WINDOW * win, xy_t x, xy_t y, su_t icon);
 
-su_t mapchar_to_icon(char c);
-
-char icon_to_mapchar(su_t icon);
 
 #endif /* _ICONS_H */

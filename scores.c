@@ -15,8 +15,8 @@ static const char* SCORES_ID = "XorCurses__scores";
 
 static void (*score_update_callback)(lvl_t level, ctr_t moves) = 0;
 
-void
-create_scores()
+
+void create_scores()
 {
     if (scores)
         destroy_scores();
@@ -25,15 +25,15 @@ create_scores()
             scores[n] = (n < 6 ? 1000 : 2000);
 }
 
-void
-destroy_scores()
+
+void destroy_scores()
 {
     if (scores)
         free(scores);
 }
 
-void
-load_scores()
+
+void load_scores()
 {
     if (!scores)
         return;
@@ -90,6 +90,9 @@ load_scores()
             bp++;
         *bp = '\0';
 
+        debug("scores buf:'%s'\n",buf);
+
+
         if (sscanf(buf, "%02x%02x", &read_chka, &read_chkb) != 2)
         {
             debug("failed to read level %d score checksum\n", i);
@@ -113,23 +116,30 @@ load_scores()
             debug("failed to read level %d == %d score\n", lvl, i);
             return;
         }
+
+        scores[i] = score;
     }
 
     fclose(fp);
 }
 
-void
-save_score(lvl_t level, ctr_t moves)
+
+void save_score(lvl_t level, ctr_t moves)
 {
     if (!scores)
         return;
+
     if (level < MIN_LEVEL || level > MAX_LEVEL)
         return;
+
     if (moves > MAX_MOVES)
         return;
+
     if (!replay.hasexit)
         return;
-    if (scores[level] > moves) {
+
+    if (scores[level] > moves)
+    {
         scores[level] = moves;
         write_scores();
         if (score_update_callback)
@@ -137,8 +147,8 @@ save_score(lvl_t level, ctr_t moves)
     }
 }
 
-void
-write_scores()
+
+void write_scores()
 {
     if (!scores)
         return;

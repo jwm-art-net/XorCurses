@@ -15,6 +15,9 @@ main(void)
 {
     int ret = 0;
     /* options need to be created first, as screen_create requires them. */
+
+    debug("\n\nThis is XorCurses-" VERSION "\n\n");
+
     if (!options_create()) {
         err_msg("Please either install XorCurses by running "
                 "'sudo make install' within the\n"
@@ -23,10 +26,13 @@ main(void)
         ret = 1;
         goto bail;
     }
+
     if (!screen_create()) {
+        debug("failed to create screen :-(\n");
         ret = 1;
         goto bail;
     }
+
     if (!screen_resize()) {
         err_msg("Terminal too small!\n"
                 "Please resize and try again,\n"

@@ -4,8 +4,12 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "options.h"
 #include "debug.h"
+#include "fletcher.h"
+
+
+const char* XORCURSES_MAP_ID = "XorCurses__map";
+
 
 struct xor_map *map = 0;
 
@@ -18,31 +22,55 @@ struct xor_map *map = 0;
     xor_map_validate is called by xor_map_load, which will exit
     on invalid map encounters, ooh-err.
 */
-su_t xor_map_validate();
+su_t xor_map_validate(void);
 
-void
-xor_map_create()
+int  xor_map_create(void)
 {
+    int i;
+
     if (map)
         xor_map_destroy();
-    if (!(map = malloc(sizeof(struct xor_map)))) {
+
+    if (!(map = malloc(sizeof(struct xor_map))))
+    {
         err_msg("Could not allocate map struct!\n");
-        exit(1);
+        return 0;
     }
-    for (xy_t row = 0; row < MAP_H; row++) {
-        if (!(map->buf[row] = malloc(sizeof(map_t) * (MAP_W + 1)))) {
+
+    for (xy_t row = 0; row < MAP_H; row++)
+    {
+        if (!(map->buf[row] = malloc(sizeof(map_t) * (MAP_W + 1))))
+        {
             free(map);
             err_msg("Could not allocate map buffer!\n");
-            exit(1);
+            return 0;
         }
     }
-    map->teleport[0].x = map->teleport[0].y = 0;
-    map->teleport[1].x = map->teleport[1].y = 0;
+
+    map->filename = 0;
+    map->name = 0;
+
+    for (i = 0; i < 2; ++i)
+    {
+        map->player[i].x = map->player[i].y = 0;
+        map->view[i].x = map->view[i].y = 0;
+        map->teleport[i].x = map->teleport[i].y = 0;
+        map->tpview[i].x = map->tpview[i].y = 0;
+    }
+
+    for (i = 0; i < 4; ++i)
+    {
+        map->mappc[i].x = map->mappc[i].y = 0;
+    }
+
+    map->level = -1;
     map->mask_count = 0;
+
+    return 1;
 }
 
-void
-xor_map_destroy()
+
+void xor_map_destroy(void)
 {
     if (map) {
         if (map->filename)
@@ -56,61 +84,77 @@ xor_map_destroy()
     }
 }
 
-char *
-xor_map_read_name(FILE * fp)
+
+FILE* xor_map_open(const char* filename)
 {
-    char tmpbuf[80] = { 0 };
-    if (fgets(tmpbuf, 80, fp) != tmpbuf)
+}
+
+char* xor_map_read_name(FILE * fp, ctr_t* best_moves)
+{
+    char buf[80];
+    char* cp;
+    char tmp[80];
+    int i;
+    char* ret = 0;
+
+    if (fgets(buf, 80, fp) != buf)
+    {
+        debug("failed to read data line in file\n");
         return 0;
-    char *cp = 0;
+    }
 
-    if ((cp = strchr(tmpbuf, '\r')))
-        *cp = 0;
-    else if ((cp = strchr(tmpbuf, '\n')))
-        *cp = 0;
-    su_t l = strlen(tmpbuf);
+    buf[79] = '\0';
+    cp = buf;
+    while (*cp >= ' ')
+        ++cp;
+    *cp = '\0';
 
-    if (l >= MAPNAME_MAXCHARS)
-        l = MAPNAME_MAXCHARS;
-    char *ret = malloc(l + 1);
+    strncpy(tmp, buf, 20);
+    tmp[20] = '\0';
+    cp = tmp;
 
-    if (!ret)
+    while (*cp == ' ')
+        ++cp;
+
+    size_t l = strlen(cp);
+
+    if (!(ret = malloc(l + 1)))
+    {
+        debug("failed to allocate %ld bytes for map name\n", (long)l);
         return 0;
-    strncpy(ret, tmpbuf, l);
-    ret[l] = 0;
+    }
+
+    strncpy(ret, cp, l);
+    ret[l] = '\0';
+
+    if (!best_moves)
+        return ret;
+
+    cp = buf + 20;
+
+    if (sscanf(cp, "%04d", &i) != 1)
+    {
+        debug("failed to read best score.\n");
+        free(ret);
+        return 0;
+    }
+
+    *best_moves = i;
+
     return ret;
 }
 
-char *
-xor_map_load_read_name(su_t level)
+
+int xor_map_load_file(const char* filename)
 {
-    char *fn = 0;
-
-    if (!(fn = options_map_filename(level)))
-        if (!(fn = options_map_filename(level)))
-            return 0;
-    FILE *fp = fopen(fn, "r");
-
-    free(fn);
-    if (!fp)
-        return 0;
-    char *ret = xor_map_read_name(fp);
-
-    fclose(fp);
-    return ret;
-}
-
-void
-xor_map_load(su_t level)
-{
-    if (!(map->filename = options_map_filename(level)))
-        xor_map_load_error(0, 0, "Map name or level error");
-    FILE *map_fp = fopen(map->filename, "r");
+    FILE *map_fp = fopen(((filename) ? filename : map->filename), "r");
 
     if (!map_fp)
-        xor_map_load_error(map_fp, map->filename, "Can't find map file!");
-    if (!(map->name = xor_map_read_name(map_fp)))
-        xor_map_load_error(map_fp, map->filename,
+        return xor_map_load_error(map_fp, map->filename,
+                                          "Can't find map file!");
+
+    if (!(map->name = xor_map_read_name(map_fp, 0)))
+        return xor_map_load_error(map_fp, map->filename,
                                                 "Could not read map name.");
     char tmpbuf[80];
 
@@ -118,7 +162,7 @@ xor_map_load(su_t level)
 
     for (xy_t row = 0; row < MAP_H; row++) {
         if (!fgets(tmpbuf, 80, map_fp))
-            xor_map_load_error(map_fp, map->filename,
+            return xor_map_load_error(map_fp, map->filename,
                                                     "Error in map layout");
         for (xy_t col = 0; col < MAP_W; col++) {
             su_t i = tmpbuf[col];
@@ -139,7 +183,7 @@ xor_map_load(su_t level)
                     tele_count++;
                 }
                 else
-                    xor_map_load_error(map_fp, map->filename,
+                    return xor_map_load_error(map_fp, map->filename,
                                        "Too many teleports in map!");
                 break;
             }
@@ -156,7 +200,7 @@ xor_map_load(su_t level)
 
     for (i = 0; i < 2; i++) {
         if (fscanf(map_fp, "%d %d", &tmpx, &tmpy) < 2)
-            xor_map_load_error(map_fp, map->filename,
+            return xor_map_load_error(map_fp, map->filename,
                                "Error loading initial player views");
         else {
             map->view[i].x = tmpx;
@@ -165,23 +209,23 @@ xor_map_load(su_t level)
     }
     for (i = 0; i < 4; i++) {
         if (fscanf(map_fp, "%d %d", &tmpx, &tmpy) < 2)
-            xor_map_load_error(map_fp, map->filename,
+            return xor_map_load_error(map_fp, map->filename,
                                "Error loading map piece data");
         else {
             map->mappc[i].x = tmpx;
             map->mappc[i].y = tmpy;
         }
         if (map->buf[map->mappc[i].y][map->mappc[i].x] != ICON_MAP)
-            xor_map_load_error(map_fp, map->filename,
+            return xor_map_load_error(map_fp, map->filename,
                                "Mismatched map-piece location data");
     }
     if (tele_count == 1)
-        xor_map_load_error(map_fp, map->filename,
+        return xor_map_load_error(map_fp, map->filename,
                                             "Only one teleport in map!");
     if (tele_count) {           /* read teleport views */
         for (i = 0; i < 2; i++) {
             if (fscanf(map_fp, "%d %d", &tmpx, &tmpy) < 2)
-                xor_map_load_error(map_fp, map->filename,
+                return xor_map_load_error(map_fp, map->filename,
                                    "Error loading teleport-exit view-data");
             else {
                 map->tpview[i].x = tmpx;
@@ -190,14 +234,16 @@ xor_map_load(su_t level)
         }
     }
     if (!xor_map_validate())
-        xor_map_load_error(map_fp, map->filename,
+        return xor_map_load_error(map_fp, map->filename,
                            "contains unsupported object");
     fclose(map_fp);
-    map->level = level;
+    map->level = -1;
+
+    return 1;
 }
 
-su_t
-xor_map_validate()
+
+su_t xor_map_validate()
 {
     su_t ret = 1;
 
@@ -207,13 +253,13 @@ xor_map_validate()
             case ICON_FISH:
             case ICON_H_BOMB:
                 if (map->buf[y + 1][x] == ICON_SPACE
-                    || map->buf[y + 1][x] == ICON_V_FIELD)
+                 || map->buf[y + 1][x] == ICON_V_FIELD)
                     ret = 0;
                 break;
             case ICON_CHICKEN:
             case ICON_V_BOMB:
                 if (map->buf[y][x - 1] == ICON_SPACE
-                    || map->buf[y][x - 1] == ICON_H_FIELD)
+                 || map->buf[y][x - 1] == ICON_H_FIELD)
                     ret = 0;
                 break;
             default:
@@ -224,8 +270,8 @@ xor_map_validate()
     return ret;
 }
 
-su_t
-map_get_teleport(xy_t x, xy_t y)
+
+su_t map_get_teleport(xy_t x, xy_t y)
 {
     for (su_t i = 0; i < 2; i++)
         if (map->teleport[i].x == x && map->teleport[i].y == y)
@@ -233,20 +279,101 @@ map_get_teleport(xy_t x, xy_t y)
     return 99;
 }
 
-void
-xor_map_load_error(FILE * fp, char *filename, char *msg)
+
+int  xor_map_load_error(FILE * fp, const char *filename, char *msg)
 {
     if (fp)
         fclose(fp);
-    endwin();
+
     if (filename)
     {
-        err_msg("Error in map!\n\tfile:%s\n\t%s\n", filename, msg);
+        debug("Error in map!\n\tfile:%s\n\t%s\n", filename, msg);
     }
     else
     {
-        err_msg("Error in map!\n\t%s\n", msg);
+        debug("Error in map!\n\t%s\n", msg);
     }
-    xor_map_destroy(map);
-    exit(1);
+
+    xor_map_destroy();
+    return 0;
+}
+
+
+su_t mapchar_to_icon(char c)
+{
+    switch (c) {
+    case ' ':
+        return ICON_SPACE;
+    case '#':
+        return ICON_WALL;
+    case '-':
+        return ICON_H_FIELD;
+    case '|':
+        return ICON_V_FIELD;
+    case '@':
+        return ICON_MASK;
+    case '!':
+        return ICON_FISH;
+    case '<':
+        return ICON_CHICKEN;
+    case 'o':
+        return ICON_H_BOMB;
+    case 'x':
+        return ICON_V_BOMB;
+    case 'D':
+        return ICON_DOLL;
+    case 'S':
+        return ICON_SWITCH;
+    case 'M':
+        return ICON_MAP;
+    case 'E':
+        return ICON_EXIT;
+    case '+':
+        return ICON_TELEPORT;
+    case '1':
+        return ICON_PLAYER0;
+    case '2':
+        return ICON_PLAYER1;
+    }
+    return ICON_SPACE;
+}
+
+
+char icon_to_mapchar(su_t icon)
+{
+    switch (icon) {
+    case ICON_SPACE:
+        return ' ';
+    case ICON_WALL:
+        return '#';
+    case ICON_H_FIELD:
+        return '-';
+    case ICON_V_FIELD:
+        return '|';
+    case ICON_MASK:
+        return '@';
+    case ICON_FISH:
+        return '!';
+    case ICON_CHICKEN:
+        return '<';
+    case ICON_H_BOMB:
+        return 'o';
+    case ICON_V_BOMB:
+        return 'x';
+    case ICON_DOLL:
+        return 'D';
+    case ICON_SWITCH:
+        return 'S';
+    case ICON_MAP:
+        return 'M';
+    case ICON_EXIT:
+        return 'E';
+    case ICON_TELEPORT:
+        return '+';
+    case ICON_PLAYER0:
+        return '1';
+    case ICON_PLAYER1:
+        return '2';
+    }
+    return 0;
 }

@@ -1,4 +1,4 @@
-/****************************************************************************
+/***************************************************************************
     This file is part of XorCurses a port/remake of the game Xor
     (originally by Astral Software) to the Linux console using
     ncurses.
@@ -11,7 +11,7 @@
     file:       options.h
     purpose:    initializes options and reads map names from maps.
 
-****************************************************************************/
+***************************************************************************/
 #ifndef _OPTIONS_H
 #define _OPTIONS_H
 
@@ -21,9 +21,6 @@
     elsewhere, dir = direction...
 */
 
-extern const char *map_dir;
-
-extern const char *data_dir;
 
 enum DATA_LOC
 {

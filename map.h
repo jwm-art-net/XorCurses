@@ -26,6 +26,8 @@
 
 #define MAPNAME_MAXCHARS 20
 
+extern const char* XORCURSES_MAP_ID;
+
 struct xor_map
 {
     char*   filename;
@@ -45,15 +47,15 @@ struct xor_map
 
 extern struct xor_map *map;
 
-void xor_map_create();
+int     xor_map_create(void); /* return 0 on failure */
+void    xor_map_destroy(void);
 
-void xor_map_destroy();
+int     xor_map_load(su_t level); /* return 0 on failure */
+int     xor_map_load_file(const char*); /* return 0 on failure */
+char*   xor_map_read_name(FILE * fp, ctr_t* best_moves);
 
-void xor_map_load(su_t level);
-
-char *xor_map_read_name(FILE * fp);
-
-char *xor_map_load_read_name(su_t level);
+/* best_moves will have the default best moves value read from map */
+char*   xor_map_load_read_name(su_t level, ctr_t* best_moves);
 
 /*  xor_map_validate ensures that any objects that gravitate
     are suspended by *something*. fish and h-bombs should not
@@ -61,15 +63,19 @@ char *xor_map_load_read_name(su_t level);
     being held back by nothing, waiting to race left. returns
     0 for invalid maps, 1 for valid maps.
 */
-su_t xor_map_validate();
+su_t    xor_map_validate(void);
 
 /*  map_get_teleport checks the coordinates passed against
     those in the map->teleports array and returns 0 if
     coordinate is teleport 0, and 1 if coordinate is teleport
     1. returns 99 if coord is not a teleport.
 */
-su_t map_get_teleport(xy_t x, xy_t y);
+su_t    map_get_teleport(xy_t x, xy_t y);
 
-/* brute force exit(1) */
-void xor_map_load_error(FILE * fp, char *filename, char *msg);
+/* always returns 0  */
+int     xor_map_load_error(FILE * fp, const char *filename, char *msg);
+
+su_t    mapchar_to_icon(char c);
+char    icon_to_mapchar(su_t icon);
+
 #endif /* _MAP_H */

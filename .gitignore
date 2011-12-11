@@ -2,5 +2,7 @@
 xorcurses
 *.bz2
 *.xcr
-
+map_convert/*.txt
+map_convert/mapconvert
+core
 

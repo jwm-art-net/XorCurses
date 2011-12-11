@@ -233,14 +233,22 @@ int replay_xor(int flow)
     rpause.tv_sec = 0;
     rpause.tv_nsec = options_replay_speed(options->replay_speed);
 
-    if (flow & FLOW_START) {
-        xor_map_create();
-        xor_map_load(replay.level);
+    if (flow & FLOW_START)
+    {
+        if (!xor_map_create()
+         || !xor_map_load(replay.level))
+        {
+            scr_wmsg(game_win, "Failed to load map!", 0, 0);
+            wgetch(game_win);
+            return FLOW_DO_QUIT;
+        }
+
         player_init();
         player.replay = TRUE;
         init_wall(replay.level, TRUE);
         game_win_init_views();
     }
+
     game_win_display();
     info_win_update_map(player.have_map);
     info_win_repaint();
