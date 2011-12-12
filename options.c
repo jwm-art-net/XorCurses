@@ -62,8 +62,7 @@ options_destroy()
     }
 }
 
-su_t
-options_set_dir_opt(enum DATA_LOC loc)
+su_t options_set_dir_opt(enum DATA_LOC loc)
 {
     switch ((options->dir_opt = loc)) {
     case DATA_CWD_LOC:
@@ -83,22 +82,29 @@ options_set_dir_opt(enum DATA_LOC loc)
     return 1;
 }
 
-su_t
-options_create_map_names()
+su_t options_create_map_names()
 {
     debug("creating map names...\n");
 
     for (su_t i = MIN_LEVEL; i <= MAX_LEVEL; i++)
-        if (!(map_name[i] = xor_map_load_read_name(i, 0)))
+    {
+        char* fn = options_map_filename(i);
+
+        if (!(map_name[i] = xor_map_read_name(fn, 0)))
         {
             debug("failed to read map name %d\n", i);
+            free(fn);
             return 0;
         }
+
+        free(fn);
+    }
+
     return 1;
 }
 
-void
-options_destroy_map_names()
+
+void options_destroy_map_names()
 {
     for (su_t i = MIN_LEVEL; i <= MAX_LEVEL; i++)
         free(map_name[i]);

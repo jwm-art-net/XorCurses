@@ -7,20 +7,19 @@
 
 * level entry and level complete exit animations.
 
-* scores and replays no longer saved in binary
-  format. binary dot files in a user home dir don't
-  seem to be the done thing.
-
 * scores and replays now have checksums to discourage
   tampering.
 
 * a replay saved of a finished level will no longer
-  allow player to stop replay and resume playing from
-  any point.
+  permit player to resume game-play from any point
+  within replay.
 
 * replay now saves scroll thresh and difficulty
   setting.
 
+* scores, replays, and maps files now saved in a
+  custom casual-tamper-proof (ie checksum-per-line)
+  non-binary (ie text) data format.
 
 -----------------------------------------------
 0.1.3

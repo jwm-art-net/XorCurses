@@ -1,3 +1,25 @@
+2011-12-12 James Morris <james@jwm-art.net>
+
+	* data_file.[ch]: functions and data structure for reading
+	  files of data represented in ASCII and each line having
+	  a checksum. primarily to increase difficulty of casual
+	  tampering, but also means files such as the replays are
+	  portable [to be confirmed ;-)]. currently only the map is
+	  using these functions, but the replay and scores (which
+	  use specialized versions of similar code) will also be
+	  converted. 
+
+	* maps/*.txt: all replaced with XorCurses__Map files (*.xcm)
+
+	* map.[ch]: now using data file for file i/o. strengthened
+	  map validation. removed storage of file name from struct
+	  xor_map, added best_moves (default score to beat per
+	  level). cleaned up the mess caused by too many
+	  xor_map_load_* functions.
+
+	* map_tmp.[ch]: *DELETED* due to xor_map cleanup.
+
+
 2011-12-09 James Morris <james@jwm-art.net>
 
 	* scores.c: set scores for each level with corresponding

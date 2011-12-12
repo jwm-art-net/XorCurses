@@ -1,4 +1,4 @@
-/****************************************************************************
+/***************************************************************************
     This file is part of XorCurses a port/remake of the game Xor
     (originally by Astral Software) to the Linux console using
     ncurses.
@@ -12,12 +12,14 @@
     purpose:    defines map data structure, methods to create it, destroy it
                 and load it, or load just the map names. etc.
 
-****************************************************************************/
+***************************************************************************/
 #ifndef _MAP_H
 #define _MAP_H
 
+
 #include "types.h"
-#include <stdio.h>
+#include "data_file.h"
+
 
 #define MAP_H 32
 #define MAP_W 32
@@ -30,7 +32,6 @@ extern const char* XORCURSES_MAP_ID;
 
 struct xor_map
 {
-    char*   filename;
     char*   name;
 
     struct xy   player[2];  /* initial player positions */
@@ -39,23 +40,26 @@ struct xor_map
     struct xy   teleport[2];/* teleport positions */
     struct xy   tpview[2];  /* teleport exit views */
 
+    ctr_t   best_moves;     /* default, usually 1000 or 2000 */
     ctr_t   mask_count;
     su_t    level;
 
     map_t *buf[MAP_H + 1];
 };
 
+
 extern struct xor_map *map;
 
-int     xor_map_create(void); /* return 0 on failure */
+
+/* all return 0 on failure unless otherwise stated. */
+
+int     xor_map_create(void);
 void    xor_map_destroy(void);
 
-int     xor_map_load(su_t level); /* return 0 on failure */
-int     xor_map_load_file(const char*); /* return 0 on failure */
-char*   xor_map_read_name(FILE * fp, ctr_t* best_moves);
+int     xor_map_load_by_filename(const char*);
+int     xor_map_load_by_datafile(struct df*);
 
-/* best_moves will have the default best moves value read from map */
-char*   xor_map_load_read_name(su_t level, ctr_t* best_moves);
+char*   xor_map_read_name(const char* filename, ctr_t* best_moves);
 
 /*  xor_map_validate ensures that any objects that gravitate
     are suspended by *something*. fish and h-bombs should not
@@ -72,8 +76,6 @@ su_t    xor_map_validate(void);
 */
 su_t    map_get_teleport(xy_t x, xy_t y);
 
-/* always returns 0  */
-int     xor_map_load_error(FILE * fp, const char *filename, char *msg);
 
 su_t    mapchar_to_icon(char c);
 char    icon_to_mapchar(su_t icon);

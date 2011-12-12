@@ -45,14 +45,18 @@ play_xor(lvl_t level)
 
         init_wall(level, TRUE);
 
+        char* fn = options_map_filename(level);
+
         if (!xor_map_create()
-         || !xor_map_load(level))
+         || !xor_map_load_by_filename(fn))
         {
             scr_wmsg(game_win, "Failed to load map!", 0, 0);
             wgetch(game_win);
+            free(fn);
             return FLOW_DO_QUIT;
         }
 
+        free(fn);
         player_init();
         game_win_init_views();
         splash_level_entry(level);

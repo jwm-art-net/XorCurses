@@ -14,10 +14,16 @@
 
 enum DF_FLAGS
 {
-    DF_READ  =  0x0001,
-    DF_WRITE =  0x0002,
+    DF_READ  =      0x0001,
+    DF_WRITE =      0x0002,
+    DF_RESERVED =   0xF000
+};
 
-    DF_RESERVED_BIT = 0x8000
+enum DF_STR_FLAGS
+{
+    DF_RW_DEFAULT = 0x0000,  /* LTRIM on read, LPAD on write */
+    DF_RSTR_NOTRIM =0x0010,  /* NO TRIM on read */
+    DF_WSTR_RPAD =  0x0020   /* RPAD on write */
 };
 
 
@@ -31,6 +37,7 @@ struct df
 
     char    buf[80];        /* buffer holding current line */
     char*   cp;             /* points to current position in buf */
+    char*   chksum;         /* points to position of checksum in buf */
 
     char    chkdata[256];   /* vertical checksum data */
     char*   chkcp;
@@ -50,7 +57,7 @@ char*       df_read_string(struct df*, size_t length);
 int         df_read_hex_byte(struct df*, uint8_t* result);
 int         df_read_hex_word(struct df*, uint16_t* result);
 
-int         df_read_hex_byte_array(struct df*, uint8_t* result);
+int         df_read_hex_nibble_array(struct df*, uint8_t*, size_t count);
 
 int         df_write_string(struct df*, const char*, size_t length);
 int         df_write_hex_byte(struct df*, uint8_t);

@@ -35,7 +35,7 @@ enum {
 
 static char** replaymenu = 0;
 static int shortcuts[REPLAY_MENU_COUNT];
-static const char* REPLAY_ID = "XorCurses__replay";
+static const char* REPLAY_ID = "XorCurses__Replay";
 
 static char mv_to_char(int mv);
 static int  char_to_mv(char c);
@@ -235,14 +235,18 @@ int replay_xor(int flow)
 
     if (flow & FLOW_START)
     {
+        char* fn = options_map_filename(replay.level);
+
         if (!xor_map_create()
-         || !xor_map_load(replay.level))
+         || !xor_map_load_by_filename(fn))
         {
             scr_wmsg(game_win, "Failed to load map!", 0, 0);
             wgetch(game_win);
+            free(fn);
             return FLOW_DO_QUIT;
         }
 
+        free(fn);
         player_init();
         player.replay = TRUE;
         init_wall(replay.level, TRUE);
