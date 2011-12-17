@@ -64,6 +64,8 @@ play_xor(lvl_t level)
     else
         level = replay.level;
 
+    map->level = level;
+
     game_win_display();
     info_win_repaint();
     screen_data->game_win_repaint_cb = &game_win_display;
@@ -157,7 +159,7 @@ play_xor(lvl_t level)
         player_exit_animate(&player.xmv[player.player]);
         replay.moves[player.moves_remaining] = MV_PLAYER_EXIT;
         replay.hasexit = 1;
-        save_score(map->level, MAX_MOVES - player.moves_remaining);
+        set_score(map->level, MAX_MOVES - player.moves_remaining);
         return FLOW_COMPLETE;
     }
 

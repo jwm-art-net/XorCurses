@@ -23,13 +23,11 @@ main(void)
                 "'sudo make install' within the\n"
                 "XorCurses-" VERSION " source directory, or always "
                 "start XorCurses from within that\ndirectory.\n");
-        ret = 1;
         goto bail;
     }
 
     if (!screen_create()) {
         debug("failed to create screen :-(\n");
-        ret = 1;
         goto bail;
     }
 
@@ -37,14 +35,6 @@ main(void)
         err_msg("Terminal too small!\n"
                 "Please resize and try again,\n"
                 "if possible.\n");
-        ret = 1;
-        goto bail;
-    }
-
-    if (!options_create_map_names()) {
-        err_msg("A problem occurred establishing the "
-                "map names, sorry :-(\n");
-        ret = 1;
         goto bail;
     }
 
@@ -58,14 +48,16 @@ main(void)
     /* main */
     level_menu();
 
+    ret = 1;
+
   bail:
     help_menu_destroy();
     replay_menu_destroy();
     level_menu_destroy();
     screen_destroy();
     destroy_scores();
-    options_destroy_map_names();
     options_destroy();
+
     return ret;
 }
 

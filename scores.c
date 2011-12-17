@@ -9,122 +9,183 @@
 #include <stdlib.h>
 #include <string.h>
 
-ctr_t *scores = 0;
+
+
+enum { SCORES_FILE_LINE_WIDTH = 48 };
 
 static const char* SCORES_ID = "XorCurses__scores";
+
+ctr_t* scores = 0;
+char** map_names = 0;
 
 static void (*score_update_callback)(lvl_t level, ctr_t moves) = 0;
 
 
-void create_scores()
+int create_scores()
 {
+    int i;
+
     if (scores)
         destroy_scores();
-    if ((scores = malloc(sizeof(ctr_t) * (MAX_LEVEL + 1))))
-        for (su_t n = 0; n <= MAX_LEVEL; n++)
-            scores[n] = (n < 6 ? 1000 : 2000);
+
+    scores = malloc(sizeof(*scores) * (MAX_LEVEL + 1));
+    map_names = malloc(sizeof(*map_names) * (MAX_LEVEL + 1));
+
+    if (!scores || !map_names)
+        return 0;
+
+    for (i = 1; i <= MAX_LEVEL; ++i)
+    {
+        char* fn = options_map_filename(i);
+
+        if (!fn)
+        {
+            debug("failed to obtain map filename %d\n", i);
+            return 0;
+        }
+
+        map_names[i] = xor_map_read_name(fn, &scores[i]);
+
+        if (!map_names[i])
+        {
+            debug("failed to read map name %d\n", i);
+            free(fn);
+            return 0;
+        }
+
+        free(fn);
+    }
+
+    return 1;
 }
 
 
 void destroy_scores()
 {
+    int i;
+
     if (scores)
         free(scores);
+
+    for (i = 1; i <= MAX_LEVEL; ++i)
+        free(map_names[i]);
+
+    free(map_names);
 }
 
 
-void load_scores()
+static int load_scores_df(struct df* df)
+{
+    int i;
+
+    for (i = 1; i <= MAX_LEVEL; ++i)
+    {
+        uint8_t     level;
+        uint16_t    best_moves;
+        char*       map_name;
+
+        if (!df_read_hex_byte(df, &level))
+        {
+            debug("failed to read level number %d from scores file\n", i);
+            return 0;
+        }
+
+        if (!df_read_hex_word(df, &best_moves))
+        {
+            debug("failed to read best moves %d from scores file\n", i);
+            return 0;
+        }
+
+        if (!(map_name = df_read_string(df, MAPNAME_MAXCHARS)))
+        {
+            debug("failed to read map name %d from scores file\n", i);
+            return 0;
+        }
+
+        if (strcmp(map_name, map_names[i]) != 0)
+        {
+            debug("failed to match map name %d from scores file\n"
+                  "with currently loaded maps\n", i);
+            return 0;
+        }
+
+        free(map_name);
+
+        scores[i] = best_moves;
+    }
+
+    return 1;
+}
+
+
+int load_scores()
 {
     if (!scores)
-        return;
+        return 0;
+
     if (!options->user_dir)
-        return;
+        return 0;
+
+    debug("loading scores file\n");
+
     char *fname = options_file_path(".xorcurses", options->user_dir);
 
     if (!fname)
-        return;
+        return 0;
 
     FILE *fp = fopen(fname, "r");
 
     free(fname);
 
-    if (!fp) {
-        write_scores();
-        return;
-    }
-
-    char buf[80];
-    char str[80];
-    int i;
-
-    if (!fgets(buf, 80, fp))
-        return;
-
-    sscanf(buf, "%s", str);
-
-    if (strcmp(str, SCORES_ID) != 0)
+    if (!fp)
     {
-        debug("invalid scores file\n");
-        return;
+        save_scores();
+        return 0;
     }
 
-    for (i = 1; i <= MAX_LEVEL; ++i)
+    struct df* df = df_open(fp, DF_READ, SCORES_ID,
+                                         SCORES_FILE_LINE_WIDTH);
+
+    if (!df)
     {
-        uint8_t calc_chka = 0;
-        uint8_t calc_chkb = 0;
-        unsigned int read_chka = 0;
-        unsigned int read_chkb = 0;
-        int lvl = -1, score = -1;
-        char* bp;
+        ctr_t tmp[MAX_LEVEL + 1];
+        int i;
+        debug("failed to load scores file\n");
+        debug("attempting import of old scores dump file\n");
 
-        if (!fgets(buf, 80, fp))
+        fseek(fp, 0L, SEEK_SET);
+        fread(tmp, sizeof(ctr_t), MAX_LEVEL + 1, fp);
+
+        /*  the old dump file based scores file didn't save the score
+            for map 15.
+         */
+
+        for (i = 1; i < MAX_LEVEL; ++i)
         {
-            debug("failed to get level %d score\n", i);
-            return;
+            if (tmp[i] <= 0 || tmp[i] > 2000)
+            {
+                debug("invalid score for map %d: %d \n", i, tmp[i]);
+                i = 0;
+                break;
+            }
         }
 
-        buf[79] = '\0';
+        for (--i; i > 0; --i)
+            scores[i] = tmp[i];
 
-        bp = buf; /* trim newlines etc */
-        while (*bp >= ' ')
-            bp++;
-        *bp = '\0';
-
-        debug("scores buf:'%s'\n",buf);
-
-
-        if (sscanf(buf, "%02x%02x", &read_chka, &read_chkb) != 2)
-        {
-            debug("failed to read level %d score checksum\n", i);
-            return;
-        }
-
-        bp = buf + 4;
-
-        fletcher16(&calc_chka, &calc_chkb, (uint8_t*)bp, strlen(bp));
-
-        if (read_chka != calc_chka || read_chkb != calc_chkb)
-        {
-            debug("scores level %d checksum mismatch\n", i);
-            debug("read:%02x%02x calc:%02x%02x\n",  read_chka, read_chkb,
-                                                    calc_chka, calc_chkb);
-            return;
-        }
-
-        if (sscanf(bp, "%02d%04d", &lvl, &score) != 2 || lvl != i)
-        {
-            debug("failed to read level %d == %d score\n", lvl, i);
-            return;
-        }
-
-        scores[i] = score;
+        fclose(fp);
+        save_scores();
+        return 0;
     }
 
+    load_scores_df(df);
+    df_close(df);
     fclose(fp);
+    return 1;
 }
 
 
-void save_score(lvl_t level, ctr_t moves)
+void set_score(lvl_t level, ctr_t moves)
 {
     if (!scores)
         return;
@@ -141,47 +202,81 @@ void save_score(lvl_t level, ctr_t moves)
     if (scores[level] > moves)
     {
         scores[level] = moves;
-        write_scores();
+        save_scores();
         if (score_update_callback)
             (score_update_callback)(level, moves);
     }
 }
 
 
-void write_scores()
+int save_scores()
 {
     if (!scores)
-        return;
+        return 0;
+
     if (!options->user_dir)
-        return;
+        return 0;
+
+    debug("saving scores file\n");
+
     char *fname = options_file_path(".xorcurses", options->user_dir);
 
     if (!fname)
-        return;
+        return 0;
+
     FILE *fp = fopen(fname, "w");
 
     free(fname);
+
     if (!fp)
-        return;
+        return 0;
+
+    struct df* df = df_open(fp, DF_WRITE, SCORES_ID,
+                                          SCORES_FILE_LINE_WIDTH);
+
+    if (!df)
+    {
+        debug("failed to write scores file\n");
+        fclose(fp);
+        return 0;
+    }
 
     int i;
-    fprintf(fp, "%s\n",     SCORES_ID);
+    int ret = 0;
 
     for (i = 1; i <= MAX_LEVEL; ++i)
     {
-        uint8_t chka = 0;
-        uint8_t chkb = 0;
-        char buf[80];
-        snprintf(buf, 79, "%02d%04d%s", i, scores[i], map_name[i]);
-        fletcher16(&chka, &chkb, (uint8_t*)buf, strlen(buf));
-        fprintf(fp, "%02x%02x%s\n", chka, chkb, buf);
+        uint8_t     level = i & 0x0f;
+
+        if (!df_write_hex_byte(df, level))
+        {
+            debug("failed to write level number %d to scores file\n", i);
+            goto fail;
+        }
+
+        if (!df_write_hex_word(df, scores[i]))
+        {
+            debug("failed to write best moves %d to scores file\n", i);
+            goto fail;
+        }
+
+        if (!df_write_string(df, map_names[i], MAPNAME_MAXCHARS))
+        {
+            debug("failed to write map name %d to scores file\n", i);
+            goto fail;
+        }
     }
+
+    ret = 1;
+
+fail:
+    df_close(df);
     fclose(fp);
-    return;
+    return ret;
 }
 
-void
-set_score_update_cb(void (*score_update_cb)(lvl_t level, ctr_t moves))
+
+void set_score_update_cb(void (*score_update_cb)(lvl_t level, ctr_t moves))
 {
     score_update_callback = score_update_cb;
 }

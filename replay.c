@@ -10,7 +10,7 @@
 #include "fletcher.h"
 #include "exit.h"
 #include "splash.h"
-
+#include "scores.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -251,6 +251,7 @@ int replay_xor(int flow)
         player.replay = TRUE;
         init_wall(replay.level, TRUE);
         game_win_init_views();
+        map->level = replay.level;
     }
 
     game_win_display();
@@ -478,7 +479,8 @@ int write_replay_file(FILE* fp)
     char* cdp = chkdata;
 
     fprintf(fp, "%s\n",             REPLAY_ID);
-    fprintf(fp, "level %d %s\n",    replay.level, map_name[replay.level]);
+    fprintf(fp, "level %d %s\n",    replay.level,
+                                    map_names[replay.level]);
     fprintf(fp, "oldschool %d\n",   options->oldschool_play);
     fprintf(fp, "scrollthresh %d\n",options->scroll_thresh);
 

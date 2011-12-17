@@ -28,12 +28,14 @@ int main(int argc, char** argv)
 
     map_write();
 
+    xor_map_destroy();
     return 0;
 
 fail:
     fprintf(stderr, "usage: mapconvert [FILE]\n");
 
 badfail:
+    xor_map_destroy();
     return -1;
 }
 
@@ -48,7 +50,7 @@ void map_write(void)
         return;
 
     df_write_string(df, map->name, 20);
-    df_write_hex_word(df, (map->level < 6) ? 1000 : 2000);
+    df_write_hex_word(df,  map->best_moves);
 
     for (i = 0; i < 2; ++i)
     {
@@ -92,13 +94,13 @@ static int xor_map_load_error(FILE * fp, const char *filename, char *msg)
         debug("Error in map!\n\t%s\n", msg);
     }
 
-    xor_map_destroy();
     return 0;
 }
 
 
 int map_load_txt(const char* filename)
 {
+    int best_moves;
     FILE *map_fp = fopen(filename, "r");
 
     if (!map_fp)
@@ -122,6 +124,14 @@ int map_load_txt(const char* filename)
     map->name = malloc(strlen(tmpbuf) + 1);
     strcpy(map->name, tmpbuf);
 
+    if (!fgets(tmpbuf, 80, map_fp))
+        return xor_map_load_error(map_fp, filename,
+                                        "failed to read map best moves");
+    if (sscanf(tmpbuf, "%d", &best_moves) != 1)
+        return xor_map_load_error(map_fp, filename,
+                    "failed to read default best moves\n");
+
+    map->best_moves = best_moves;
     su_t tele_count = 0;
 
     for (xy_t row = 0; row < MAP_H; row++) {

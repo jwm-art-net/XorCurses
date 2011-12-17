@@ -13,16 +13,6 @@ const char* XORCURSES_MAP_ID = "XorCurses__Map";
 
 struct xor_map *map = 0;
 
-/*  xor_map_validate ensures that any objects that gravitate
-    are suspended by *something*. fish and h-bombs should not
-    hang in the air, and chickens and v-bombs should not be
-    being held back by nothing, waiting to race left. returns
-    0 for invalid maps, 1 for valid maps.
-
-    xor_map_validate is called by xor_map_load, which will exit
-    on invalid map encounters, ooh-err.
-*/
-su_t xor_map_validate(void);
 
 int  xor_map_create(void)
 {
@@ -156,7 +146,7 @@ int xor_map_load_by_datafile(struct df* df)
         }
     }
 
-    if (!df_read_v_chksum(df))
+    if (!df_read_v_chksum(df, &map->chka, &map->chkb))
     {
         debug("fail!\n");
         return 0;
@@ -212,8 +202,14 @@ char* xor_map_read_name(const char* filename, ctr_t* best_moves)
 
     if (!df_read_hex_word(df, &n2))
     {
-        debug("failed to read default best move count\n");
+        debug("failed to read default score\n");
         return 0;
+    }
+
+    if (n2 <= 0 || n2 > 2000)
+    {
+        debug("invalid default score\n");
+        n2 = 1000;
     }
 
     *best_moves = n2;
@@ -222,12 +218,28 @@ char* xor_map_read_name(const char* filename, ctr_t* best_moves)
 }
 
 
-su_t xor_map_validate(void)
+int xor_map_validate(void)
 {
     int players = 0;
     int teleports = 0;
+    int maps = 0;
+    int i;
 
-    for (xy_t y = 0; y < MAP_H - 1; y++) 
+    size_t len = strlen(map->name);
+
+    if (!len || len > MAPNAME_MAXCHARS)
+    {
+        debug("invalid map name\n");
+        return 0;
+    }
+
+    if (map->best_moves <= 0 || map->best_moves > 2000)
+    {
+        debug("invalid map default score\n");
+        return 0;
+    }
+
+    for (xy_t y = 0; y < MAP_H - 1; y++)
     {
         for (xy_t x = 0; x < MAP_W - 1; x++)
         {
@@ -243,14 +255,15 @@ su_t xor_map_validate(void)
             {
             case ICON_PLAYER0:
             case ICON_PLAYER1:
-            {
-                su_t p = i - ICON_PLAYER0;
-                debug("ICON_PLAYER0:%d i:%d p:%d\n", ICON_PLAYER0, i, p);
-                map->player[p].x = x;
-                map->player[p].y = y;
+                if (players < 2)
+                {
+                    su_t p = i - ICON_PLAYER0;
+                    map->player[p].x = x;
+                    map->player[p].y = y;
+                }
+
                 players++;
                 break;
-            }
 
             case ICON_MASK:
                 map->mask_count++;
@@ -286,7 +299,11 @@ su_t xor_map_validate(void)
                 }
 
                 teleports++;
+
                 break;
+
+            case ICON_MAP:
+                maps++;
 
             default:
                 break;
@@ -299,6 +316,55 @@ su_t xor_map_validate(void)
         debug("invalid number of players %d\n", players);
         return 0;
     }
+
+    if (teleports != 0 && teleports != 2)
+    {
+        debug("invalid number of teleports %d\n", teleports);
+        return 0;
+    }
+
+    if (maps != 4)
+    {
+        debug("invalid number of map pieces %d\n", maps);
+        return 0;
+    }
+
+    for (i = 0; i < 2; ++i)
+    {
+        struct xy* p = &map->player[i];
+        struct xy* t = &map->teleport[i];
+        struct xy* pv = &map->view[i];
+        struct xy* tv = &map->tpview[i];
+
+        if (p->x <= pv->x || p->x >= pv->x + 8
+         || p->y <= pv->y || p->y >= pv->y + 8)
+        {
+            debug("invalid player %d view (%d, %d) and position "
+                  "(%d, %d) combination", i + 1, pv->x, pv->y, p->x, p->y);
+            return 0;
+        }
+
+        if (teleports && (t->x <= tv->x || t->x >= tv->x + 8
+                       || t->y <= tv->y || t->y >= tv->y + 8))
+        {
+            debug("invalid teleport %d view (%d, %d) and position "
+                  "(%d, %d) combination", i + 1, tv->x, tv->y, t->x, t->y);
+            return 0;
+        }
+    }
+
+    for (i = 0; i < 4; ++i)
+    {
+        struct xy* m = &map->mappc[i];
+
+        if (map->buf[m->y][m->x] != ICON_MAP)
+        {
+            debug("invalid map-piece %d location (%d, %d)", i, m->x, m->y);
+            return 0;
+        }
+    }
+
+    debug("players:%d teleports:%d maps:%d\n", players, teleports, maps);
 
     return 1;
 }

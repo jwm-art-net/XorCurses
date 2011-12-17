@@ -21,7 +21,6 @@
 #include "types.h"
 #include "play_xor.h" /* for enum param in replay() */
 
-#include <ncurses.h> /* for bool! */
 
 struct xor_replay
 {
@@ -30,6 +29,7 @@ struct xor_replay
     su_t canplay;
     su_t hasexit;
 } replay;
+
 
 void replay_menu_create();
 void replay_menu_destroy();

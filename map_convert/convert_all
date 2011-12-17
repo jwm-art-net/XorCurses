@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for i in {1..15}
+do
+    txt_infile="maps/${i}.txt"
+    bn=$(printf "%02d" $i)
+    xcm_outfile="../maps/${bn}.xcm"
+    ./mapconvert $txt_infile > $xcm_outfile
+done

@@ -233,16 +233,21 @@ static enum PLAY_STATE player_process_push(struct xor_move* pmv)
 
 void player_death(su_t icon)
 {
-    su_t p = (icon == ICON_PLAYER0) ? 0 : 1;
     char *msg[2] = { " Oops! ", "Gotcha!" };
-    map->buf[map->player[p].y][map->player[p].x] = ICON_SPACE;
+    su_t p = icon - ICON_PLAYER0;
+
     if (p)
         player.p1_alive = 0;
     else
         player.p0_alive = 0;
-    if ((p ? player.p0_alive : player.p1_alive)) {
-        player.player ^= 1;
-        info_win_update_player_icon();
+
+    if (p == player.player)
+    {
+        if ((p ? player.p0_alive : player.p1_alive))
+        {
+            player.player ^= 1;
+            info_win_update_player_icon();
+        }
     }
 
     scr_wmsg_pause(game_win, msg[p], 0, 0, TRUE);

@@ -45,6 +45,9 @@ struct xor_map
     su_t    level;
 
     map_t *buf[MAP_H + 1];
+
+    uint8_t chka;
+    uint8_t chkb;
 };
 
 
@@ -67,7 +70,7 @@ char*   xor_map_read_name(const char* filename, ctr_t* best_moves);
     being held back by nothing, waiting to race left. returns
     0 for invalid maps, 1 for valid maps.
 */
-su_t    xor_map_validate(void);
+int     xor_map_validate(void);
 
 /*  map_get_teleport checks the coordinates passed against
     those in the map->teleports array and returns 0 if

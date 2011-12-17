@@ -201,21 +201,32 @@ void info_win_map_erase_mask(xy_t x, xy_t y)
 void info_win_display()
 {
     wattrset(info_win, COLOR_PAIR(COL_I_TXT));
-    mvwprintw(info_win,
-              0, (screen_data->info_w - (strlen(map->name) + 2)) / 2,
-              " %d. %s ", map->level, map->name);
-    mvwprintw(info_win, 2, 8, "masks: %d of %d ", player.masks_collected,
-              map->mask_count);
+    mvwprintw(info_win, 0,
+                        (screen_data->info_w - (strlen(map->name) + 2)) / 2,
+                        " %d. %s ", map->level, map->name);
+
+    mvwprintw(info_win, 2, 8, "masks: %2d of %d ", player.masks_collected,
+                        map->mask_count);
+
     mvwprintw(info_win, 3, 8, "moves: %d ",
                                     MAX_MOVES - player.moves_remaining);
-    mvwprintw(info_win, 4, 8, "x:%d  y:%d  ",
-              map->player[player.player].x, map->player[player.player].y);
+
+    mvwprintw(info_win, 4, 8, "x:%2d  y:%2d  ",
+                                    player.xmv[player.player].from_x,
+                                    player.xmv[player.player].from_y);
+
     if (screen_data->scale_map == TRUE)
+    {
         mvwprintw(info_win,
                   screen_data->map_tly + HMAP_H,
                   screen_data->map_tlx + 1, "m - map toggle");
+    }
+
     wrefresh(info_win);
 
     debug("view_x0: %3d view_y0: %3d\n", map->view[0].x, map->view[0].y);
     debug("view_x1: %3d view_y1: %3d\n", map->view[1].x, map->view[1].y);
+
+    debug("map player 0 x:%2d y:%2d\n", map->player[0].x, map->player[0].y);
+    debug("map player 1 x:%2d y:%2d\n", map->player[1].x, map->player[1].y);
 }

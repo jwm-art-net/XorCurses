@@ -5,6 +5,9 @@
 
 * map display bugs fixed - finally.
 
+* long-standing playing with dead player bug
+  identified and eliminated.
+
 * level entry and level complete exit animations.
 
 * scores and replays now have checksums to discourage

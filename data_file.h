@@ -50,7 +50,7 @@ struct df
 struct df*  df_open(FILE*, int flags, const char* type_id,
                                                     size_t data_width);
 
-int         df_read_v_chksum(struct df*);
+int         df_read_v_chksum(struct df*, uint8_t* chka, uint8_t* chkb);
 void*       df_close(struct df*); /* *always* returns 0 */
 
 char*       df_read_string(struct df*, size_t length);

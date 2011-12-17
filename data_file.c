@@ -26,6 +26,14 @@ struct df* df_open(FILE* fp, int flags, const char* type_id,
         return 0;
 
     struct df* df;
+    size_t idlen = strlen(type_id);
+
+    if (idlen > data_width)
+    {
+        debug("fail with type id string '%s' longer than data width %zd\n",
+                                                    type_id, data_width);
+        return 0;
+    }
 
     debug("opening file type id '%s'\n", type_id);
 
@@ -38,7 +46,7 @@ struct df* df_open(FILE* fp, int flags, const char* type_id,
         return 0;
     }
 
-    df->type_id = malloc(strlen(type_id) + 1);
+    df->type_id = malloc(idlen + 1);
     strcpy(df->type_id, type_id);
     df->fp = fp;
     df->flags = flags;
@@ -75,7 +83,7 @@ struct df* df_open(FILE* fp, int flags, const char* type_id,
 }
 
 
-int df_read_v_chksum(struct df* df)
+int df_read_v_chksum(struct df* df, uint8_t* chka, uint8_t* chkb)
 {
     uint8_t read_chka, read_chkb;
     uint8_t calc_chka, calc_chkb;
@@ -105,6 +113,12 @@ int df_read_v_chksum(struct df* df)
     }
 
     debug("v checksum ok\n");
+
+    if (chka && chkb)
+    {
+        *chka = calc_chka;
+        *chkb = calc_chkb;
+    }
 
     return 1;
 }
@@ -185,11 +199,8 @@ static int df_read_line(struct df* df)
     df->chkcp += 4;
     *df->chkcp = '\0';
     *df->chksum = '\0';
-
     df->flags = DF_READ;
-
     df->cp = df->buf;
-    debug("ok\n");
 
     return 1;
 }
@@ -207,6 +218,7 @@ char* df_read_string(struct df* df, size_t length)
     char* ret = malloc(length + 1);
     char* r = ret;
     unsigned int c = 0;
+    int trim = !(df->flags & DF_RSTR_NOTRIM);
 
     if (!ret)
     {
@@ -215,12 +227,9 @@ char* df_read_string(struct df* df, size_t length)
         return 0;
     }
 
-    for (c = 0; c < length && *df->cp == ' '; ++c)
-        ++df->cp;
 
     /* in case string only contains space characters */
     *r = '\0';
-
     while (c < length)
     {
         if (*df->cp == '\0')
@@ -233,8 +242,23 @@ char* df_read_string(struct df* df, size_t length)
             }
         }
 
-        while (c++ < length && *df->cp)
+        if (trim)
+        {
+            while (c < length && *df->cp == ' ')
+            {
+                ++c;
+                ++df->cp;
+            }
+
+            if (*df->cp)
+                trim = 0;
+        }
+
+        while (c < length && *df->cp)
+        {
+            ++c;
             *r++ = *df->cp++;
+        }
     }
 
     *r = '\0';
@@ -415,8 +439,6 @@ static int df_write_line(struct df* df)
             return (df->flags = 0);
     }
 
-    debug("writing... buf:'%s'\n", df->buf);
-
     if (df->cp != chksum)
     {
         debug("cp not at end\n"); debug("'%s'\n",df->cp);
@@ -440,8 +462,6 @@ int df_write_string(struct df* df, const char* str, size_t length)
         debug("not for writing!\n");
         return (df->flags = 0);
     }
-
-    debug("writing string...'%s'\n",str);
 
     char* chksum = df->buf + df->width;
     size_t slen = strlen(str);

@@ -93,11 +93,11 @@ game_win_swap_update(void)
 {
     su_t p = (player.player) ? 0 : 1;
 
-    if (map->player[player.player].x > map->view[p].x
-        && map->player[player.player].x <
+    if (player.xmv[player.player].from_x > map->view[p].x
+        && player.xmv[player.player].from_x <
         map->view[p].x + screen_data->garea_w - 1) {
-        if (map->player[player.player].y > map->view[p].y
-            && map->player[player.player].y <
+        if (player.xmv[player.player].from_y > map->view[p].y
+            && player.xmv[player.player].from_y <
             map->view[p].y + screen_data->garea_h - 1) {
             map->view[player.player].x = map->view[p].x;
             map->view[player.player].y = map->view[p].y;

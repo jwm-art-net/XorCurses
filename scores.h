@@ -18,22 +18,21 @@
 
 #include "types.h"
 
-extern ctr_t *scores;
+extern ctr_t*   scores;
+extern char**   map_names;
 
-void create_scores();
 
-void destroy_scores();
+int     create_scores();
+void    destroy_scores();
 
-void load_scores();
-
-void save_score(lvl_t level, ctr_t moves);
-
-void write_scores();
+int     load_scores();
+void    set_score(lvl_t level, ctr_t moves);
+int     save_scores();
 
 /*  the score_update_cb param of set_score_update_cb is called by
     save_score. the level menu needs (sets) this to update the scores
     for a level in the menu when that level is completed.
 */
-void set_score_update_cb(void (*score_update_cb)(lvl_t, ctr_t));
+void    set_score_update_cb(void (*score_update_cb)(lvl_t, ctr_t));
 
 #endif

@@ -29,7 +29,6 @@ enum DATA_LOC
     DATA_USER_LOC = 2           /* unused - user specified loc cmdline  */
 };
 
-extern char *map_name[MAX_LEVEL + 1];
 
 struct xor_options
 {
@@ -52,10 +51,6 @@ su_t options_create();
 void options_destroy();
 
 su_t options_set_dir_opt(enum DATA_LOC loc);
-
-su_t options_create_map_names();
-
-void options_destroy_map_names();
 
 /*  options_replay_speed accepts either 1-9 or '1'-'9'  */
 long options_replay_speed(char n);

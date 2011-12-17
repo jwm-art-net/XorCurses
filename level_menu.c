@@ -42,11 +42,13 @@ void level_menu_score_update(lvl_t i, ctr_t moves)
 {
     if (i < MIN_LEVEL || i > MAX_LEVEL)
         return;
+
     if (lvlmenu[i])
         free(lvlmenu[i]);
+
     lvlmenu[i] = malloc((MAPNAME_MAXCHARS + 8) * sizeof(char));
     sprintf(lvlmenu[i], "%-*s %4d", MAPNAME_MAXCHARS - 1,
-            map_name[i], moves);
+            map_names[i], moves);
 }
 
 void level_menu_create()

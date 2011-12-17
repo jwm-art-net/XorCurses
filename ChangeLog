@@ -1,3 +1,38 @@
+2011-12-16 James Morris <james@jwm-art.net>
+
+	* player.c, player_death: fixed long standing but only
+	  recently discovered bug where if consequence of player A
+	  action is the death of player B, the game then switches
+	  from using player A to using the deceased player B (who
+	  is now invisible and no longer can push things but can
+	  pass through force-fields).
+
+	* scores.c: replaced specialized file I/O with use of the new
+	  generalized data_file file I/O routines. moved map names
+	  creation/destruction routines here *into* scores creation
+	  destruction for easy capture of default map scores to beat.
+	  recognize old scores routine never saved the score of map
+	  15. scores validity checking.
+
+	* data_file.c: various fixes, sanity checks, etc.
+
+	* map.c: further map validation checks added.
+
+	* player.[ch]: no longer dynamically allocating xor_move
+	  upon each player movement. a xor_move embedded within the
+	  player data struct is used instead.
+
+	* map.[ch]: map->player struct xy now only used to store
+	  initial player position (as indicated by comment) and no
+	  longer updated to reflect player positions.
+
+	* game_display.c, game_win_swap_update: doesn't use map
+	  player coords anymore but player player coords.
+
+	* maps/*.xcm, map_convert/maps/*.txt all have default
+	  score added.
+
+
 2011-12-12 James Morris <james@jwm-art.net>
 
 	* data_file.[ch]: functions and data structure for reading
