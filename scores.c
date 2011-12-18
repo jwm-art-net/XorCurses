@@ -29,7 +29,7 @@ int create_scores()
         destroy_scores();
 
     scores = malloc(sizeof(*scores) * (MAX_LEVEL + 1));
-    map_names = malloc(sizeof(*map_names) * (MAX_LEVEL + 1));
+    map_names = calloc(MAX_LEVEL + 1, sizeof(*map_names));
 
     if (!scores || !map_names)
         return 0;
@@ -40,7 +40,7 @@ int create_scores()
 
         if (!fn)
         {
-            debug("failed to obtain map filename %d\n", i);
+            err_msg("failed to obtain map filename %d\n", i);
             return 0;
         }
 
@@ -48,7 +48,7 @@ int create_scores()
 
         if (!map_names[i])
         {
-            debug("failed to read map name %d\n", i);
+            err_msg("failed to read map name %d\n", i);
             free(fn);
             return 0;
         }
@@ -64,11 +64,14 @@ void destroy_scores()
 {
     int i;
 
-    if (scores)
-        free(scores);
+    if (!scores)
+        return;
+
+    free(scores);
 
     for (i = 1; i <= MAX_LEVEL; ++i)
-        free(map_names[i]);
+        if (map_names[i])
+            free(map_names[i]);
 
     free(map_names);
 }

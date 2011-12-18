@@ -26,8 +26,16 @@ main(void)
         goto bail;
     }
 
+    if (!create_scores())
+        goto bail;
+
+    if (!load_scores()) {
+        err_msg("failed to load scores file\n");
+        /* proceed anyway, don't bail because of this */
+    }
+
     if (!screen_create()) {
-        debug("failed to create screen :-(\n");
+        err_msg("failed to initialize curses\n");
         goto bail;
     }
 
@@ -38,8 +46,6 @@ main(void)
         goto bail;
     }
 
-    create_scores();
-    load_scores();
     init_icons();
     level_menu_create();
     replay_menu_create();

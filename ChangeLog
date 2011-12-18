@@ -4,6 +4,11 @@
 	  is not set (ie, ignore breakpoints if the replay is of a
 	  fully completed level).
 
+	* scores.c: prevent segmentation fault in load code when one
+	  or more maps cannot be loaded.
+
+	* Makefile: fix wildcard used for MAPS to include map 10.
+
 
 2011-12-17 James Morris <james@jwm-art.net>
 
