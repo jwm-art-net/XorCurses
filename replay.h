@@ -31,8 +31,8 @@ struct xor_replay
 } replay;
 
 
-void replay_menu_create();
-void replay_menu_destroy();
+void replay_menu_create(void);
+void replay_menu_destroy(void);
 
 /*  replay_menu now called before play_xor actually quits out of
     its main loop - this should simplify the code for continuing
@@ -45,9 +45,9 @@ int replay_menu(int flow);
 
 int replay_xor(int flow);
 
-void replay_save();
+void replay_save(void);
 
-lvl_t replay_load();
+lvl_t replay_load(void);
 
 #ifdef DEBUG
 /*  replay_dump_break_quit_moves steps through player.moves_remaining,
@@ -55,7 +55,7 @@ lvl_t replay_load();
     MV_REPLAY_BREAK bits set - the relative move index to moves_remaining
     is displayed.
 */
-void replay_dump_break_quit_moves();
+void replay_dump_break_quit_moves(void);
 #endif
 
 #endif

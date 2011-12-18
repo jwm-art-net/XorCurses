@@ -246,7 +246,7 @@ int save_scores()
 
     for (i = 1; i <= MAX_LEVEL; ++i)
     {
-        uint8_t     level = i & 0x0f;
+        uint8_t level = i & 0x0f;
 
         if (!df_write_hex_byte(df, level))
         {

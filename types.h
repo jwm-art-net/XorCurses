@@ -17,7 +17,6 @@
 
 
 #include <stdint.h>
-#include <stdio.h>
 
 
 /*  type to be used for storing map data within
@@ -68,9 +67,6 @@ enum { MIN_LEVEL = 1, MAX_LEVEL = 15 };
 #endif
 
 enum { MAX_MOVES = 2000 };
-
-
-int read_int(FILE* fp, char* fmt, int* result);
 
 
 

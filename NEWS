@@ -1,4 +1,31 @@
 -----------------------------------------------
+18th December 2011
+
+New Release: XorCurses-0.2.0
+
+XorCurses-0.2.0 is a leap forward for XorCurses. Important
+bug fixes have been made, simple animations added, and
+completely overhauled file formats.
+
+* game play no longer switches to dead player killed by
+  consequences of the other player's actions.
+
+* full scale and half scale map display fixed to properly
+  show where masks are.
+
+* entry animation for level start.
+
+* reward animation providing closure for level completion.
+
+* new file formats with id's, checksums, and value validation
+  to deter casual tamperers.
+
+* best score for level 15 no longer forgotten.
+
+* lots of invisibile-to-player code changes.
+
+
+-----------------------------------------------
 Monday 28th November 2011
 
 New Release: XorCurses-0.1.3

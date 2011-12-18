@@ -1,3 +1,15 @@
+2011-12-18 James Morris <james@jwm-art.net>
+
+	* replay.c, replay_xor: ignore breakpoints if replay.canplay
+	  is not set (ie, ignore breakpoints if the replay is of a
+	  fully completed level).
+
+
+2011-12-17 James Morris <james@jwm-art.net>
+
+	* replay.c: now using data_file file I/O routines.
+
+
 2011-12-16 James Morris <james@jwm-art.net>
 
 	* player.c, player_death: fixed long standing but only

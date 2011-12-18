@@ -32,6 +32,7 @@ enum {
     REPLAY_MENU_COUNT
 };
 
+enum { REPLAY_FILE_LINE_WIDTH = 48 };
 
 static char** replaymenu = 0;
 static int shortcuts[REPLAY_MENU_COUNT];
@@ -43,7 +44,7 @@ static int write_replay_file(FILE* fp);
 static int read_replay_file(FILE* fp);
 
 
-void replay_menu_create()
+void replay_menu_create(void)
 {
     replaymenu = malloc(sizeof(char*) * REPLAY_MENU_COUNT);
 
@@ -86,7 +87,7 @@ void replay_menu_create()
 }
 
 
-void replay_menu_destroy()
+void replay_menu_destroy(void)
 {
 }
 
@@ -265,8 +266,8 @@ int replay_xor(int flow)
     bool interupt = FALSE;
 
     while ((state == PLAY_CONTINUE
-          ||state == PLAY_PROCESS_MOVE)
-         &&breakpoint == FALSE)
+         || state == PLAY_PROCESS_MOVE)
+         && breakpoint == FALSE)
     {
         nanosleep(&rpause, &repause);
         key = wgetch(game_win);
@@ -301,7 +302,7 @@ int replay_xor(int flow)
             if (move & MV_REPLAY_BREAK)
             {
                 move &= ~ MV_REPLAY_BREAK;
-                if (!options->oldschool_play)
+                if (!options->oldschool_play && replay.canplay)
                     breakpoint = TRUE;
             }
             state = player_move(move) ^ PLAY_RECORD;
@@ -346,7 +347,7 @@ player_state_print(state);
 }
 
 
-void replay_save()
+void replay_save(void)
 {
     FILE *fp = 0;
     char *filename = scr_wmsg_read(game_win, "Filename:", 30);
@@ -375,7 +376,7 @@ void replay_save()
         goto bail;
     }
 
-    if (write_replay_file(fp) == 0)
+    if (write_replay_file(fp))
         scr_wmsg(game_win, "Saved!", 0, 0);
     else
         scr_wmsg(game_win, "Error saving replay!", 0, 0);
@@ -390,7 +391,7 @@ bail:
 }
 
 
-lvl_t replay_load()
+lvl_t replay_load(void)
 {
     FILE *fp = 0;
     char *filename = scr_wmsg_read(game_win, "Filename:", 30);
@@ -474,173 +475,139 @@ inline int char_to_mv(char c)
 
 int write_replay_file(FILE* fp)
 {
-    int i, ln;
-    char chkdata[256];
-    char* cdp = chkdata;
+    int i;
+    int ret = 0;
+    struct df* df = df_open(fp, DF_WRITE, REPLAY_ID,
+                                          REPLAY_FILE_LINE_WIDTH);
 
-    fprintf(fp, "%s\n",             REPLAY_ID);
-    fprintf(fp, "level %d %s\n",    replay.level,
-                                    map_names[replay.level]);
-    fprintf(fp, "oldschool %d\n",   options->oldschool_play);
-    fprintf(fp, "scrollthresh %d\n",options->scroll_thresh);
-
-    for (ln = i = 0; ln < 63; ++ln)
+    if (!df)
     {
-        uint8_t chka = 0;
-        uint8_t chkb = 0;
-        char data[33];
-        char* dp = data;
-        size_t j;
-        size_t len = (ln < 62) ? 32 : 17;
-
-        for (j = 0; j < len; ++j)
-            *dp++ = mv_to_char(replay.moves[i++]);
-
-        if (ln == 62) /* checksum of checksums */
-        {
-            char* play = (replay.hasexit) ? "notplay" : "canplay";
-            int c;
-            fletcher16(&chka, &chkb, (uint8_t*)chkdata, 248);
-            c = snprintf(dp, 5, "%02x%02x", chka, chkb);
-            dp += c;
-            len += c;
-            c = snprintf(dp, strlen(play) + 1, "%s", play);
-            dp += c;
-            len += c;
-            /* pad */
-            for (; len < 32;  ++len)
-                *dp++ = '0';
-        }
-
-        *dp = '\0';
-        fletcher16(&chka, &chkb, (uint8_t*)data, len);
-        fprintf(fp, "%02x%02x%s\n", chka, chkb, data);
-        cdp += snprintf(cdp, 5, "%02x%02x", chka, chkb);
+        debug("failed to write replay file\n");
+        goto fail;
     }
 
-    return 0;
+    if (!df_write_hex_byte(df, replay.level))
+    {
+        debug("failed to write level number\n");
+        goto fail;
+    }
+
+    if (!df_write_hex_byte(df, options->oldschool_play))
+    {
+        debug("failed to write oldschool\n");
+        goto fail;
+    }
+
+    if (!df_write_hex_byte(df, options->scroll_thresh))
+    {
+        debug("failed to write scroll thresh\n");
+        goto fail;
+    }
+
+    char tmp[MAX_MOVES + 1];
+
+    for (i = 0; i <= MAX_MOVES; ++i)
+        tmp[i] = mv_to_char(replay.moves[i]);
+
+    if (!df_write_string(df, tmp, MAX_MOVES + 1))
+    {
+        debug("failed to write replay moves\n");
+        goto fail;
+    }
+
+    if (!df_write_string(df, (replay.hasexit ? "notplay" : "canplay"), 7))
+    {
+        debug("failed to write play permission\n");
+        goto fail;
+    }
+
+    ret = 1;
+
+fail:
+    df_close(df);
+    return ret;
 }
 
 
 int read_replay_file(FILE* fp)
 {
-    int level = -1, oldschool = -1, scrollthresh = -1;
-    uint8_t calc_chka = 0;
-    uint8_t calc_chkb = 0;
-    unsigned int read_chka = 0;
-    unsigned int read_chkb = 0;
-    char chkdata[256];
-    char* cdp = chkdata;
-
-    char buf[80];
-    char str[80];
-
-    if (!fgets(buf, 80, fp))
-        return -1;
-
-    sscanf(buf, "%s", str);
-
-    if (strcmp(str, REPLAY_ID) != 0)
-        return -1;
-
-    if (read_int(fp, "level %d", &level) < 0)
-        return -1;
-
-    if (read_int(fp, "oldschool %d", &oldschool) < 0)
-        return -1;
-
-    if (read_int(fp, "scrollthresh %d", &scrollthresh) < 0)
-        return -1;
-
-    debug("level:%d\n",level);
-    debug("oldschool:%d\n",oldschool);
-    debug("scrollthresh:%d\n",scrollthresh);
-
-    int i, ln;
-    char* bp;
-
-    for (i = ln = 0; ln < 63; ++ln)
+    int     i;
+    char*   tmp;
+    uint8_t level;
+    uint8_t oldschool;
+    uint8_t scroll;
+    int     ret = 0;
+    struct  df* df = df_open(fp, DF_READ, REPLAY_ID,
+                                         REPLAY_FILE_LINE_WIDTH);
+    if (!df)
     {
-        size_t len;
-        size_t j;
-
-        if (!fgets(buf, 80, fp))
-        {
-            debug("failed to get replay line:%d\n", ln);
-            return -1;
-        }
-
-        buf[79] = '\0';
-        len = strlen(buf);
-
-        while(len && buf[len - 1] <= ' ')
-            buf[--len] = '\0';
-
-        if (len != 36)
-        {
-            debug("length failure (%ld) in replay line:%d\n", len, ln);
-            return -1;
-        }
-
-        if (sscanf(buf, "%02x%02x", &read_chka, &read_chkb) != 2)
-        {
-            debug("failed to read line:%d checksum\n", ln);
-            return -1;
-        }
-
-        bp = buf + 4;
-        len -= 4;
-        fletcher16(&calc_chka, &calc_chkb, (uint8_t*)bp, len);
-
-        if (read_chka != calc_chka || read_chkb != calc_chkb)
-        {
-            debug("checksum mismatch line:%d\n", ln);
-            debug("read:%02x%02x calc:%02x%02x\n",  read_chka, read_chkb,
-                                                    calc_chka, calc_chkb);
-            return -1;
-        }
-
-        cdp += snprintf(cdp, 5, "%02x%02x", read_chka, read_chkb);
-
-        len = (ln < 62) ? len : 17;
-
-        for (j = 0; j < len; ++j, ++i)
-            replay.moves[i] = char_to_mv(*bp++);
+        debug("failed to read replay file\n");
+        goto fail;
     }
 
-    sscanf(bp, "%02x%02x", &read_chka, &read_chkb);
-    fletcher16(&calc_chka, &calc_chkb, (uint8_t*)chkdata, 248);
-
-    if (read_chka != calc_chka || read_chkb != calc_chkb)
+    if (!df_read_hex_byte(df, &level))
     {
-        debug("vertical checksum mismatch\n");
-        debug("read:%02x%02x calc:%02x%02x\n",  read_chka, read_chkb,
-                                                calc_chka, calc_chkb);
-        return -1;
+        debug("failed to read level number\n");
+        goto fail;
     }
 
-    bp += 4;
-    sscanf(bp, "%s", str);
+    if (level < 1 || level > 15)
+    {
+        debug("invalid level number\n");
+        goto fail;
+    }
 
-    replay.canplay = (strncmp(str, "canplay", 7) == 0) ? 1 : 0;
+    if (!df_read_hex_byte(df, &oldschool))
+    {
+        debug("failed to read oldschool\n");
+        goto fail;
+    }
+
+    if (!df_read_hex_byte(df, &scroll))
+    {
+        debug("failed to read scroll thresh\n");
+        goto fail;
+    }
+
+    tmp = df_read_string(df, MAX_MOVES + 1);
+
+    if (!tmp)
+    {
+        debug("failed to read replay moves\n");
+        goto fail;
+    }
+
+    for (i = 0; i < MAX_MOVES + 1; ++i)
+        replay.moves[i] = char_to_mv(tmp[i]);
+
+    free(tmp);
+
+    tmp = df_read_string(df, 7);
+
+    if (!tmp)
+    {
+        debug("failed to write play permission\n");
+        goto fail;
+    }
+
+    replay.canplay = strcmp(tmp, "canplay") == 0;
+
+    free(tmp);
+
     replay.level = level;
-    oldschool = oldschool > 0 ? 1 : 0;
+    options->scroll_thresh = (scroll < 1 || scroll > 3) ? 2 : scroll;
+    options->oldschool_play = (oldschool != 0);
 
-    if (oldschool != options->oldschool_play)
-    {
-        options->oldschool_play = oldschool;
-        screen_resize();
-    }
+    ret = 1;
 
-    if (oldschool && scrollthresh > 0 && scrollthresh < 4)
-        options->scroll_thresh = scrollthresh;
-
-    return 0;
+fail:
+    df_close(df);
+    return ret;
 }
 
 
 #ifdef DEBUG /* replay_dump_break_quit_moves() */
-void replay_dump_break_quit_moves()
+void replay_dump_break_quit_moves(void)
 {
     int mv_st = - 10;
     int mv_en = 10;
