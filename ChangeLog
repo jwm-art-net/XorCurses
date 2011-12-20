@@ -1,3 +1,11 @@
+2011-12-20 James Morris <james@jwm-art.net>
+
+	* game_display.c, game_win_init_views: fixed assumption that
+	  game_win_init_views was only called at the start of the
+	  level. fixed detection of when position of view area within
+	  map needed changing on resize.
+
+
 2011-12-18 James Morris <james@jwm-art.net>
 
 	* replay.c, replay_xor: ignore breakpoints if replay.canplay

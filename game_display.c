@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "debug.h"
 
 static xy_t _ga_w = 0;
 static xy_t _ga_h = 0;
@@ -17,42 +18,44 @@ static xy_t _ga_h = 0;
 void
 game_win_init_views(void)
 {
+    debug("initializing views...\n");
+
     _ga_w = screen_data->garea_w;
     _ga_h = screen_data->garea_h;
-    su_t scrt = (player.replay ? 1 : options->scroll_thresh);
+
+/*    su_t scrt = (player.replay ? 1 : options->scroll_thresh);*/
+    su_t scrt = options->scroll_thresh;
 
     for (su_t p = 0; p < 2; p++)
     {
-        xy_t ox = map->view[p].x;
-        /*  prevent void beyond right hand wall of map from displaying
-           during resize. note that test condition is over-enthusiastic
-           to the point of paranoia, but it needs to be. Unfortunately
-           this removes the player when right side of view is on edge
-           of right side map, the garea is being shrunk, and the player
-           is on the left of the view - the player pos test corrects it.
-         */
-        if (ox + _ga_w >= MAP_W - 1)
+        xy_t vx = map->view[p].x;
+        xy_t vy = map->view[p].y;
+
+        if (vx + _ga_w > MAP_W - 1)
         {
-            ox -= (ox + _ga_w) - MAP_W;
-            if (map->player[p].x - scrt < ox)
-                ox -= ox - (map->player[p].x - scrt);
+            vx = MAP_W - _ga_w;
         }
-        else if (ox + _ga_w <= map->player[p].x + scrt)
-            ox += (map->player[p].x + scrt + 1) - (ox + _ga_w);
-
-        map->view[p].x = ox;
-        xy_t oy = map->view[p].y;
-
-        if (oy + _ga_h >= MAP_H - 1)
+        else if (vx + _ga_w <= player.xmv[p].from_x + scrt)
         {
-            oy -= oy + _ga_h - MAP_H;
-            if (map->player[p].y - scrt < oy)
-                oy -= oy - (map->player[p].y - scrt);
+            vx = player.xmv[p].from_x - _ga_w + (scrt + 1);
+            if (vx + _ga_w > MAP_W)
+                vx = MAP_W - _ga_w;
         }
-        else if (oy + _ga_h <= map->player[p].y + scrt)
-            oy += (map->player[p].y + scrt + 1) - (oy + _ga_h);
 
-        map->view[p].y = oy;
+        if (vy + _ga_h > MAP_H)
+        {
+            vy = MAP_H - _ga_h;
+        }
+        else if (player.xmv[p].from_y + scrt >= vy + _ga_h)
+        {
+            vy = player.xmv[p].from_y - _ga_h + (scrt + 1);
+
+            if (vy + _ga_h  > MAP_H)
+                vy = MAP_H - _ga_h;
+        }
+
+        map->view[p].x = vx;
+        map->view[p].y = vy;
     }
 }
 
@@ -61,13 +64,39 @@ game_win_display(void)
 {
     if (_ga_w != screen_data->garea_w || _ga_h != screen_data->garea_h)
         game_win_init_views();
+
     xy_t ox = map->view[player.player].x;
     xy_t oy = map->view[player.player].y;
-    for (xy_t y = 0; y < _ga_h; y++) {
-        for (xy_t x = 0; x < _ga_w; x++) {
+
+/*    while(map->view[player.player].y + _ga_h > MAP_H)
+        map->view[player.player].y--;
+
+    while(map->view[player.player].x + _ga_w > MAP_W)
+        map->view[player.player].x--;
+*/
+    for (xy_t y = 0; y < _ga_h; y++)
+    {
+        #if DEBUG
+        int err = 0;
+        #endif
+        for (xy_t x = 0; x < _ga_w; x++)
+        {
+            #if DEBUG
+            if (oy + y < MAP_H && ox + x < MAP_W)
+            #endif
             game_win_icon_dump(x * ICON_W, y * ICON_H,
                                map->buf[oy + y][ox + x]);
+            #if DEBUG
+            else
+                err = 1;
+            #endif
         }
+        #if DEBUG
+        if (err)
+        {
+            debug("game win out of bounds, y:%d\n", y);
+        }
+        #endif
     }
     wrefresh(game_win);
 }
@@ -94,11 +123,13 @@ game_win_swap_update(void)
     su_t p = (player.player) ? 0 : 1;
 
     if (player.xmv[player.player].from_x > map->view[p].x
-        && player.xmv[player.player].from_x <
-        map->view[p].x + screen_data->garea_w - 1) {
+     && player.xmv[player.player].from_x <
+        map->view[p].x + screen_data->garea_w - 1)
+    {
         if (player.xmv[player.player].from_y > map->view[p].y
-            && player.xmv[player.player].from_y <
-            map->view[p].y + screen_data->garea_h - 1) {
+         && player.xmv[player.player].from_y <
+            map->view[p].y + screen_data->garea_h - 1)
+        {
             map->view[player.player].x = map->view[p].x;
             map->view[player.player].y = map->view[p].y;
         }

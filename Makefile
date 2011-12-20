@@ -22,9 +22,9 @@ CFLAGS:= -std=gnu99 -Wall -Wextra -pedantic -DDATADIR=\"$(SHAREDIR)\"
 # movements and bomb detonations. Redirect stderr
 # if you use it.
 
-#CFLAGS:=$(CFLAGS) -ggdb -DDEBUG
+CFLAGS:=$(CFLAGS) -ggdb -DDEBUG
 
-CFLAGS:=$(CFLAGS) -O2
+#CFLAGS:=$(CFLAGS) -O2
 
 # Add -DTESTMAP to enable access within the level
 # menu of the test map (maps/0.txt). NOTE: DO NOT

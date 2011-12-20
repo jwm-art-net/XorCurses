@@ -95,15 +95,17 @@ screen_destroy()
     debug("Ncurses says bye bye!\n");
 }
 
-su_t
-screen_size()
+
+su_t screen_size()
 {
     debug("pasting rabbit-skin-glue to screen...\n");
 
     int maxx = getmaxx(stdscr);
     int maxy = getmaxy(stdscr);
+
     if (maxx < MIN_W || maxy < 24)
         return 0;
+
     /*  The info panel width is calculated from a ratio and then
        restricted to just large enough to accommodate a map display. */
     screen_data->info_w = info_w_ratio * maxx;
@@ -233,22 +235,28 @@ screen_size()
     return 1;
 }
 
-su_t
-screen_resize()
+
+su_t screen_resize()
 {
     debug("resizing screen...\n");
 
-    if (!screen_size()) {
+    if (!screen_size())
+    {
         char warn[] = "** TOO SMALL **";
         char wc[2] = " ";
         su_t wl = strlen(warn);
-        do {
+
+        do
+        {
             int maxx = getmaxx(stdscr);
             int maxy = getmaxy(stdscr);
             attrset(COLOR_PAIR(COL_TOO_SMALL));
             ctr_t c = 0;
-            for (int y = 0; y < maxy; y++) {
-                for (int x = 0; x < maxx; x++) {
+
+            for (int y = 0; y < maxy; y++)
+            {
+                for (int x = 0; x < maxx; x++)
+                {
                     wc[0] = (c < wl ? warn[c] : '/');
                     mvwprintw(stdscr, y, x, wc);
                     c++;
@@ -259,16 +267,22 @@ screen_resize()
             wgetch(stdscr);
         } while (!screen_size());
     }
+
     wclear(stdscr);
     wrefresh(stdscr);
     wclear(game_win);
+
     if (screen_data->game_win_repaint_cb)
         screen_data->game_win_repaint_cb();
+
     wclear(info_win);
+
     if (screen_data->info_win_repaint_cb)
         screen_data->info_win_repaint_cb();
+
     return 1;
 }
+
 
 int
 scr_wmsg_pause(
