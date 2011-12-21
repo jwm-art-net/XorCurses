@@ -1,4 +1,23 @@
 -----------------------------------------------
+21st December 2011
+
+
+Minor bugfix release: XorCurses-0.2.1
+
+* this release fixes two bugs caused by a minor difference in
+  the way the player positions were stored. the bugs manifested
+  themselves in the teleport, and the game window display.
+
+* additionally, fixed serious bugs with the game view when the
+  screen/terminal was resized causing the players to sometimes
+  disappear and/or seg-fault.
+
+On a different note:
+
+* i have finally completed level 9. the first time took around
+  1500 moves, the second time 1217.
+
+-----------------------------------------------
 18th December 2011
 
 New Release: XorCurses-0.2.0
