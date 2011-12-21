@@ -36,8 +36,10 @@ bool player_teleport(struct xor_move * pmv)
             if (map->buf[py][px] == ICON_SPACE)
             {
                 map->buf[py][px] = pmv->from_obj;
-                map->player[player.player].x = pmv->to_x = px;
-                map->player[player.player].y = pmv->to_y = py;
+/*                map->player[player.player].x = pmv->to_x = px;
+                map->player[player.player].y = pmv->to_y = py; */
+                player.xmv[player.player].from_x = pmv->to_x = px;
+                player.xmv[player.player].from_y = pmv->to_y = py;
                 xy_t tlx = map->tpview[t].x;
                 xy_t tly = map->tpview[t].y;
 
