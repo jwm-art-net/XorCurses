@@ -5,6 +5,9 @@
 	  level. fixed detection of when position of view area within
 	  map needed changing on resize.
 
+	* teleport.c, player_teleport: fixed bug caused by deprecated
+	  usage of map->player.
+
 
 2011-12-18 James Morris <james@jwm-art.net>
 

@@ -226,7 +226,4 @@ void info_win_display()
 
     debug("view_x0: %3d view_y0: %3d\n", map->view[0].x, map->view[0].y);
     debug("view_x1: %3d view_y1: %3d\n", map->view[1].x, map->view[1].y);
-
-    debug("map player 0 x:%2d y:%2d\n", map->player[0].x, map->player[0].y);
-    debug("map player 1 x:%2d y:%2d\n", map->player[1].x, map->player[1].y);
 }
