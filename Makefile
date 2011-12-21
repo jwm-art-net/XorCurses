@@ -49,7 +49,7 @@ HEADERS:=$(wildcard *.h)
 HELP   :=$(wildcard help*.txt)
 MAPS   :=$(wildcard maps/[0-1][0-9].xcm)
 
-DISTFILES :=ChangeLog CHANGES INSTALL Makefile NEWS README TODO
+DISTFILES :=ChangeLog INSTALL Makefile NEWS README TODO
 DIST      :=XorCurses-$(VERSION)
 DISTDIR   :=$(DIST)/
 

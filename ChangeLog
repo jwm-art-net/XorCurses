@@ -8,7 +8,8 @@
 	* teleport.c, player_teleport: fixed bug caused by deprecated
 	  usage of map->player.
 
-	* CHANGES: deleted due to redundancy.
+	* CHANGES: deleted due to redundancy, removed reference from
+	  Makefile.
 
 
 2011-12-18 James Morris <james@jwm-art.net>
