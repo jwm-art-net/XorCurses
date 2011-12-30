@@ -20,8 +20,7 @@ bool player_teleport(struct xor_move * pmv)
     game_win_show(map->tpview[t].x, map->tpview[t].y);
 
     /* check teleport destination has not been blown up */
-    if (map->buf[map->teleport[t].y]
-        [map->teleport[t].x] == ICON_TELEPORT)
+    if (map->buf[map->teleport[t].y][map->teleport[t].x] == ICON_TELEPORT)
     {
         /* check teleport exits are not blocked */
         xy_t chkx[4] = { 1, 0, -1, 0 };
@@ -30,14 +29,14 @@ bool player_teleport(struct xor_move * pmv)
         for (su_t i = 0; i < 4; i++)
         {
             xy_t px = map->teleport[t].x + chkx[i];
-
             xy_t py = map->teleport[t].y + chky[i];
 
             if (map->buf[py][px] == ICON_SPACE)
             {
                 map->buf[py][px] = pmv->from_obj;
-                player.xmv[player.player].from_x = pmv->to_x = px;
-                player.xmv[player.player].from_y = pmv->to_y = py;
+                player_process_old_pos(pmv);
+                pmv->from_x = pmv->to_x = px;
+                pmv->from_y = pmv->to_y = py;
                 xy_t tlx = map->tpview[t].x;
                 xy_t tly = map->tpview[t].y;
 
@@ -84,6 +83,7 @@ bool player_teleport(struct xor_move * pmv)
 
     return FALSE;
 }
+
 
 void player_teleport_animate(struct xor_move *pmv, enum TP_ANIM dir)
 {

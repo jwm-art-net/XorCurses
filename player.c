@@ -81,10 +81,12 @@ player_move(su_t move)
         return PLAY_CONTINUE;
 
     case CT_TELEPORT:
-
+        debug("before teleport pmv->from: %d, %d\n",
+                                        pmv->from_x, pmv->from_y);
         if (player_teleport(pmv))
         {
-            player_process_old_pos(pmv);
+            debug("after teleport pmv->from: %d, %d\n",
+                                        pmv->from_x, pmv->from_y);
             return PLAY_CONTINUE | PLAY_RECORD;
         }
 

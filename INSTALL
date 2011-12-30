@@ -7,15 +7,15 @@ PREREQUISITES:
     originally developed/built/tested in Debian Lenny with 
     ncurses-5.6, on both 32bit x86 and AMD64.
 
-    0.2.0 developed/tested in Arch Linux x86_64.
+    recent development/testing in Arch Linux x86_64.
 
 BUILDING:
 
 Check the Makefile meets your requirements, and edit
 if necessary - there is no configure script here.
 
-tar -jxf XorCurses-0.2.0.tar.bz2
-cd XorCurses-0.2.0
+tar -jxf XorCurses-0.2.2.tar.bz2
+cd XorCurses-0.2.2
 make
 sudo make install
 (or su -c make install)

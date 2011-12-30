@@ -1,3 +1,11 @@
+2011-12-28 James Morris <james@jwm-art.net>
+
+	* player.c, teleport.c:  move call to player_process_old_pos
+	  so that it runs with the correct coordinates - meaning: on
+	  level 14 the fish drops when player passes through force
+	  field to enter teleport.
+
+
 2011-12-20 James Morris <james@jwm-art.net>
 
 	* game_display.c, game_win_init_views: fixed assumption that
