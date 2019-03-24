@@ -1,3 +1,12 @@
+2019-03-24 James Morris <james@jwm-art.net>
+	* Makefile: comment out debug build, remove pedantic
+	  compile option.
+
+	* level_menu.c: remove use of strncpy as it generated
+	  annoying warning about truncated null terminator.
+	  Use pointers instead (it's only to cpy 3 chars).
+
+
 2011-12-28 James Morris <james@jwm-art.net>
 
 	* player.c, teleport.c:  move call to player_process_old_pos

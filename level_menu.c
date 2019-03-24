@@ -166,11 +166,17 @@ level_menu()
         {   /* more than one route to changing oldschool state */
             if (options->oldschool_play)
             {
-                strncpy(dif_ptr, "old", 3);
+                /* remove truncated null warning
+                 * due to strncpy(dif_ptr, "old", 3);*/
+                *dif_ptr = 'o';
+                *(dif_ptr + 1) = 'l';
+                *(dif_ptr + 2) = 'd';
                 options->scroll_thresh = 1;
             }
             else {
-                strncpy(dif_ptr, "new", 3);
+                *dif_ptr = 'n';
+                *(dif_ptr + 1) = 'e';
+                *(dif_ptr + 2) = 'w';
                 options->scroll_thresh = 2;
             }
 

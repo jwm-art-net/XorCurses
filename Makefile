@@ -10,7 +10,7 @@ MAPDIR=$(SHAREDIR)maps
 #------------------standard options------------------
 # probably fine for most people:
 
-CFLAGS:= -std=gnu99 -Wall -Wextra -pedantic -DDATADIR=\"$(SHAREDIR)\"
+CFLAGS:= -std=gnu99 -Wall -Wextra -DDATADIR=\"$(SHAREDIR)\"
 
 # -DDATA_DIR is an easy way of giving the src files
 # the default install location. options code relies
@@ -22,7 +22,7 @@ CFLAGS:= -std=gnu99 -Wall -Wextra -pedantic -DDATADIR=\"$(SHAREDIR)\"
 # movements and bomb detonations. Redirect stderr
 # if you use it.
 
-CFLAGS:=$(CFLAGS) -ggdb -DDEBUG
+#CFLAGS:=$(CFLAGS) -ggdb -DDEBUG
 
 #CFLAGS:=$(CFLAGS) -O2
 
