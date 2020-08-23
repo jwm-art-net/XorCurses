@@ -28,8 +28,9 @@ struct xor_replay
     su_t moves[MAX_MOVES + 1];
     su_t canplay;
     su_t hasexit;
-} replay;
+};
 
+extern struct xor_replay replay;
 
 void replay_menu_create(void);
 void replay_menu_destroy(void);

@@ -15,6 +15,7 @@
 
 static enum PLAY_STATE player_process_push(struct xor_move* pmv);
 
+struct xor_player player;
 
 void
 player_init()

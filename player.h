@@ -47,7 +47,10 @@ struct xor_player
     unsigned replay:1;
     unsigned set_breakpoint:1;  /* this set from replay, recorded by play */
     unsigned have_map:4;        /* 1 bit set for each piece collected */
-} player;
+};
+
+extern struct xor_player player;
+
 
 void player_init();
 

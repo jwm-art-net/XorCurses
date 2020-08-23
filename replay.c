@@ -34,6 +34,8 @@ enum {
 
 enum { REPLAY_FILE_LINE_WIDTH = 48 };
 
+struct xor_replay replay;
+
 static char** replaymenu = 0;
 static int shortcuts[REPLAY_MENU_COUNT];
 static const char* REPLAY_ID = "XorCurses__Replay";
