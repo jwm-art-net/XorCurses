@@ -3,7 +3,7 @@
     (originally by Astral Software) to the Linux console using
     ncurses.
 
-    XorCurses written by James W. Morris - james@jwm-art.net
+    XorCurses written by James W. Morris - jwm.art.net@gmail.com
     http://www.jwm-art.net/
 
     All code licensed under GNU GPL v3.
