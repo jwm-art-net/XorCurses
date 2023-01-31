@@ -4,7 +4,6 @@
     ncurses.
 
     XorCurses written by James W. Morris
-    http://www.jwm-art.net/
 
     All code licensed under GNU GPL.
 
@@ -25,7 +24,7 @@
 #define MIN_W       80      /*  minimum width of terminal.          */
 
 #define DEF_GAREA_W 8       /*  for oldschool purists.              */
-#define DEF_GAREA_H 8       
+#define DEF_GAREA_H 8
 
 #define MAX_GAREA_W 12      /*  maximum width of game area.         */
 #define MAX_GAREA_H 12      /*  maximum width of game area.         */

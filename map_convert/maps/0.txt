@@ -1,4 +1,4 @@
-jwm-art.net test map
+jwm test map
 ################################
 #M  #1  !#                    M#
 ####   @<#                     #

@@ -8,9 +8,9 @@ TODO list:
   other puzzle) a single part of which is provided on
   completion of each level. these parts (which would be
   single letters if puzzle is an anagram) would be
-  obtained from a server (ie jwm-art.net) rather than
-  in-game. game would upload replay, server would
-  corroborate it before returning puzzle-part. 
+  obtained from a server rather than in-game.
+  game would upload replay, server would
+  corroborate it before returning puzzle-part.
 
 * encryption: if not applied to all maps, at least, it
   should be applied to map 15 which visually, provides
@@ -21,9 +21,5 @@ TODO list:
   complex handling of scores and replays, and
   tracking of map directories etc.
 
----
-notes: xorengine idea on long term hold. for details
-see older revisions of this file and/or:
-http://jwm-art.net/o7.php?p=j20091027-2135
 
 

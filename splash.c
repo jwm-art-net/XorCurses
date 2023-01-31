@@ -26,7 +26,7 @@ void splash(void)
         "      ----------       ----------",
         "",
         " -------------------------------------",
-        "  XorCurses-" VERSION "      by jwm-art.net",
+        "            XorCurses-" VERSION "",
         "X"
     };
     char **ptr1;

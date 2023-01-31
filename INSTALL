@@ -4,7 +4,7 @@ PREREQUISITES:
     ncurses development package from your linux distro
     or ncurses built and installed from source.
 
-    originally developed/built/tested in Debian Lenny with 
+    originally developed/built/tested in Debian Lenny with
     ncurses-5.6, on both 32bit x86 and AMD64.
 
     recent development/testing in Arch Linux x86_64.
@@ -21,7 +21,7 @@ sudo make install
 (or su -c make install)
 
 If the build process fails, please contact the author
-at james@jwm-art.net describing the problem. Please
+at jwm.art.net@gmail.com describing the problem. Please
 make sure you have the development version of ncurses
 installed from your distro as well as the ncurses binaries.
 

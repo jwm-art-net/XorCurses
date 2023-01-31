@@ -1,7 +1,5 @@
 XorCurses written by James W. Morris
 
-      http://www.jwm-art.net/dark.php?p=XorCurses
-
       https://github.com/jwm-art-net/XorCurses
 
 Based on the game XOR by Astral Software (C) 1987
@@ -44,7 +42,7 @@ playing with the new school setting.
 STARTING
 
 In the level menu, use up/down arrow keys, or
-press number keys 1 to 9 to select from the 
+press number keys 1 to 9 to select from the
 available levels.
 
 Pressing d or D will change the difficulty. The old
@@ -69,7 +67,7 @@ Enter switches between your two players.
 Pressing q at any time during play will bring up
 the replay menu. You can choose to actually quit
 or watch the replay, or continue playing, amongst
-other options. During replay press keys 1-9 to 
+other options. During replay press keys 1-9 to
 change speed, with 9 being very fast. Press s for
 step mode, or, ( for hyper speed.
 
